@@ -1,16 +1,16 @@
-# SSLB (Super Simple Load Balancer) ver 0.1.0
 
-It's a Super Simples Load Balancer, just a little project to achieve some kind of performance.
+# SLB (Simple Load Balancer) ver 0.1.0
+
+It's a Simples Load Balancer, just a little project to achieve some kind of performance.
 
 ## Features
+ * Manage configurations in runtime without downtime
  * High availability (improving with time the speed)
  * Support to WebSockets
  * Monitoring the internal state (improving)
  * Really easy to configure, just a little JSON file
 
 ## Next features
- * Manage configurations in runtime without downtime
- * Complete internal status and diagnostics
  * HTTP/2 support
  * Cache 
  * HTTPS support
@@ -22,50 +22,19 @@ It's a Super Simples Load Balancer, just a little project to achieve some kind o
 To install type:
 
 ```
-go get github.com/eduardonunesp/sslb
+go get github.com/linsheng9731/SLB
 ```
 
-Don't forget to create your configuration file `config.json` at the same directory of project and run it. You can use the command `sslb -c` to create an example of configuration file.
+Don't forget to create your configuration file `config.json` at the same directory of project and run it.
 
 
 ## Usage
-Type `sslb -h` for the command line help
+Type `slb -h` for the command line help
+
+
+After the configuration file completed you can type only `slb` to start SLB with verbose mode, that command will log the output from SLB in console. That will print something like that:
 
 ```
-sslb -h                                                                                                                                                              
-NAME:
-   SSLB (github.com/eduardonunesp/sslb) - sslb
-
-USAGE:
-   sslb [global options] command [command options] [arguments...]
-
-VERSION:
-   0.1.0
-
-COMMANDS:
-   status, s	Return the internal status
-   help, h	Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --verbose, -b	activate the verbose output
-   --filename, -f 	set the filename as the configuration
-   --help, -h		show help
-   --version, -v	print the version
-```
-
-After the configuration file completed you can type only `sslb -b` to start SSLB with verbose mode, that command will log the output from SSLB in console. That will print something like that:
-
-```
-sslb -b                                                                                                                                                               
-2015/10/25 22:58:33 Start SSLB (Server)
-2015/10/25 22:58:33 Create worker pool with [1000]
-2015/10/25 22:58:33 Prepare to run server ...
-2015/10/25 22:58:33 Setup and check configuration
-2015/10/25 22:58:33 Setup ok ...
-2015/10/25 22:58:33 Run frontend server [Front1] at [0.0.0.0:80]
-2015/10/25 22:58:34 Backend active [Backend 1]
-2015/10/25 22:58:34 Backend active [Backend 2]
-2015/10/25 22:58:34 Backend active [Backend 3]
 ```
 
 ## Configuration options
@@ -136,30 +105,15 @@ sslb -b
 
 
 ## LICENSE
-Copyright (c) 2015, Eduardo Nunes Pereira
-All rights reserved.
+Copyright 2016-2017, Buoyant Inc. All rights reserved.
 
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are met:
+Licensed under the Apache License, Version 2.0 (the "License"); you may not use
+these files except in compliance with the License. You may obtain a copy of the
+License at
 
-* Redistributions of source code must retain the above copyright notice, this
-  list of conditions and the following disclaimer.
+    http://www.apache.org/licenses/LICENSE-2.0
 
-* Redistributions in binary form must reproduce the above copyright notice,
-  this list of conditions and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of sslb nor the names of its
-  contributors may be used to endorse or promote products derived from
-  this software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
