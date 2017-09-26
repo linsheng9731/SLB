@@ -1,16 +1,17 @@
 
 # SLB (Simple Load Balancer) ver 0.1.0
 
-It's a Simples Load Balancer, just a little project to achieve some kind of performance.
+It's a Simples Load Balancer, It is inspired by sslb(https://github.com/eduardonunesp/sslb), a Super Simple Loader Balancer.
+SLB improved sslb , so it's no super simple anymore, just simple.
+
+## Features
+ * Http proxy
+ * Single binary with no other dependencies for easy deployment
+ * Dynamic reloading without restart (curl http://APIHost:APIPort/reload default at http://127.0.0.1:9292/reload)
+ * Really easy to configure, just a little JSON file
+ * Support to WebSockets
 
 # Road map
-## v0.1(now)
- * Http proxy
- * No dependency curse
- * Dynamic reloading without restart (curl http://APIHost:APIPort/reload default at http://127.0.0.1:9292/reload)
- * Support to WebSockets
- * Really easy to configure, just a little JSON file
-
 ## v0.2
  * Configurations check
  * Internal status and metrics http endpoint
@@ -20,7 +21,10 @@ It's a Simples Load Balancer, just a little project to achieve some kind of perf
  * Cache
  * HTTP/2 support
  * HTTPS support
- 
+
+## v0.4
+ * Integration marathon as backend
+
  If you have any suggestion don't hesitate to open an issue, pull requests are welcome too.
 
 ## Install
