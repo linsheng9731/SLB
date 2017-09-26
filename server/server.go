@@ -108,7 +108,7 @@ func (s *LbServer) RunFrontendServer(frontend *modules.Frontend) {
 		if err != nil {
 			log.Fatal(err)
 		}
-		log.Print(fmt.Sprintf("Frontend htt server %s closed.", frontend.Name))
+		log.Print(fmt.Sprintf("Frontend http server %s closed.", frontend.Name))
 	}()
 
 	err := httpServer.ListenAndServe()

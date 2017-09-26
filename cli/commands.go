@@ -15,9 +15,7 @@ import (
 	"syscall"
 )
 
-const (
-	CONFIG_FILENAME = "config.json"
-)
+var serverHolder *server.LbServer
 
 func handlePanic() {
 	if err := recover(); err != nil {
@@ -35,7 +33,7 @@ func RunServer(c *cli.Context) {
 	apiChannel := make(chan int)
 	defer handlePanic()
 
-	filename := CONFIG_FILENAME
+	filename := common.CONFIG_FILENAME
 	if c.String("filename") != "" {
 		filename = c.String("filename")
 	}
@@ -43,6 +41,7 @@ func RunServer(c *cli.Context) {
 	configuration := config.Setup(filename)
 
 	s = server.NewServer(configuration)
+	serverHolder = s
 	log.Println("Prepare to run server ...")
 	s.Start()
 
@@ -53,7 +52,8 @@ func RunServer(c *cli.Context) {
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	log.Println(<-ch)
-	s.Stop()
+	log.Println("Prepare to stop server ...")
+	serverHolder.Stop()
 }
 
 func messageHandler(apiChannel chan int, s *server.LbServer) {
@@ -63,11 +63,12 @@ func messageHandler(apiChannel chan int, s *server.LbServer) {
 			switch msg {
 			case common.RELOAD:
 				log.Println("Received reload message.")
-				configuration := config.Setup(CONFIG_FILENAME)
+				configuration := config.Setup(common.CONFIG_FILENAME)
 				s.Stop()
 				s = server.NewServer(configuration)
 				log.Println("Prepare to run server ...")
 				s.Start()
+				serverHolder = s
 			default:
 				log.Println(fmt.Sprintf("Received a unrecognized message: %d", msg))
 			}
