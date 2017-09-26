@@ -96,7 +96,9 @@ After the configuration file completed you can type only `slb` to start SLB with
 	* websocket: Ready for respond websocket connections (default: true)
 	* rpchost: Address to expose the internal state (default: 127.0.0.1)
 	* rpcport: Port to expose the internal state (default: 42555)
-	
+	* apihost: Http api address (default: 127.0.0.1)
+	* apiport: Http api address port (default: 9292)
+
 * frontends:
 	* name: Just a identifier to your front server (required)
 	* host: Host address that serves the HTTP front (required)
