@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-const APP_NAME = "SSLB (github.com/linsheng9731/SLB)"
-const APP_USAGE = "sslb"
+const APP_NAME = "SLB (github.com/linsheng9731/SLB)"
+const APP_USAGE = "slb"
 const VERSION_MAJOR = "0"
 const VERSION_MINOR = "1"
 const VERSION_BUILD = "0"

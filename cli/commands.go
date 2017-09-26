@@ -7,7 +7,7 @@ import (
 	"github.com/linsheng9731/SLB/api"
 	"github.com/linsheng9731/SLB/common"
 	"github.com/linsheng9731/SLB/config"
-	"github.com/linsheng9731/SLB/modules"
+	"github.com/linsheng9731/SLB/server"
 	"io/ioutil"
 	"log"
 	"os"
@@ -21,12 +21,12 @@ const (
 
 func handlePanic() {
 	if err := recover(); err != nil {
-		log.Fatal("Server start catch panic,exit.")
+		log.Fatal("LbServer start catch panic,exit.")
 	}
 }
 
 func RunServer(c *cli.Context) {
-	var server *modules.Server
+	var s *server.LbServer
 
 	if c.Bool("silence") {
 		log.SetOutput(ioutil.Discard)
@@ -39,24 +39,24 @@ func RunServer(c *cli.Context) {
 	if c.String("filename") != "" {
 		filename = c.String("filename")
 	}
-	log.Println("Start SSLB (Server) ")
+	log.Println("Start SLB (LbServer) ")
 	configuration := config.Setup(filename)
 
-	server = modules.NewServer(configuration)
+	s = server.NewServer(configuration)
 	log.Println("Prepare to run server ...")
-	server.Run()
+	s.Start()
 
 	apiInstance := api.NewAPI(apiChannel)
 	apiInstance.Listen(configuration.GeneralConfig.APIAddres())
-	go messageHandler(apiChannel, server)
+	go messageHandler(apiChannel, s)
 
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
 	log.Println(<-ch)
-	server.Stop()
+	s.Stop()
 }
 
-func messageHandler(apiChannel chan int, server *modules.Server) {
+func messageHandler(apiChannel chan int, s *server.LbServer) {
 	for {
 		select {
 		case msg := <-apiChannel:
@@ -64,10 +64,10 @@ func messageHandler(apiChannel chan int, server *modules.Server) {
 			case common.RELOAD:
 				log.Println("Received reload message.")
 				configuration := config.Setup(CONFIG_FILENAME)
-				server.Stop()
-				server = modules.NewServer(configuration)
+				s.Stop()
+				s = server.NewServer(configuration)
 				log.Println("Prepare to run server ...")
-				server.Run()
+				s.Start()
 			default:
 				log.Println(fmt.Sprintf("Received a unrecognized message: %d", msg))
 			}

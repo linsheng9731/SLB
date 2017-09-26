@@ -18,7 +18,7 @@ func NewWorker() *Worker {
 	return &Worker{Idle: true}
 }
 
-func processReturn(result *http.Response) SSLBRequest {
+func processReturn(result *http.Response) SLBRequest {
 	defer result.Body.Close()
 	body, err := ioutil.ReadAll(result.Body)
 	if err != nil {
@@ -47,7 +47,7 @@ func checkForWebsocket(r *http.Request) bool {
 	return result
 }
 
-func execRequest(backend *Backend, r *http.Request) SSLBRequest {
+func execRequest(backend *Backend, r *http.Request) SLBRequest {
 	var httpRequest *http.Request
 	var err error
 
@@ -75,7 +75,7 @@ func execRequest(backend *Backend, r *http.Request) SSLBRequest {
 	}
 
 	if response == nil {
-		return NewWorkerRequestErr(http.StatusBadGateway, []byte("Method Not Supported By SSLB"))
+		return NewWorkerRequestErr(http.StatusBadGateway, []byte("Method Not Supported By SLB"))
 	}
 
 	ret := processReturn(response)
@@ -83,14 +83,14 @@ func execRequest(backend *Backend, r *http.Request) SSLBRequest {
 	return ret
 }
 
-// Search for backend with the less score
-func preProcessWorker(frontend *Frontend) *Backend {
+func searchBackend(frontend *Frontend) *Backend {
 	frontend.Lock()
 	defer frontend.Unlock()
-
 	var backendWithMinScore *Backend
-
 	for idx, backend := range frontend.BackendList {
+		if backend.Failed {
+			continue
+		}
 		backend.RLock()
 		if idx == 0 {
 			backendWithMinScore = backend
@@ -101,24 +101,23 @@ func preProcessWorker(frontend *Frontend) *Backend {
 		}
 		backend.RUnlock()
 	}
-
 	return backendWithMinScore
 }
 
-func (w *Worker) Run(r *http.Request, frontend *Frontend) SSLBRequestChan {
+func (w *Worker) Run(r *http.Request, frontend *Frontend) SLBRequestChan {
 	w.Lock()
 	w.Idle = false
 	w.Unlock()
 
-	chanReceiver := make(SSLBRequestChan)
-	go func(w *Worker, c SSLBRequestChan, f *Frontend) {
+	chanReceiver := make(SLBRequestChan)
+	go func(w *Worker, c SLBRequestChan, f *Frontend) {
 		defer func() {
 			if rec := recover(); rec != nil {
 				// Channel is closed can happen
 			}
 		}()
 
-		backend := preProcessWorker(f)
+		backend := searchBackend(f)
 
 		if backend != nil {
 			backend.Lock()

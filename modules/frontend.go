@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-// Frontend structure
 type Frontend struct {
 	config.FrontendConfig
 	BackendList

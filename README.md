@@ -3,16 +3,22 @@
 
 It's a Simples Load Balancer, just a little project to achieve some kind of performance.
 
-## Features
- * Manage configurations in runtime without downtime
- * High availability (improving with time the speed)
+# Road map
+## v0.1(now)
+ * Http proxy
+ * No dependency curse
+ * Dynamic reloading without restart (curl http://APIHost:APIPort/reload default at http://127.0.0.1:9292/reload)
  * Support to WebSockets
- * Monitoring the internal state (improving)
  * Really easy to configure, just a little JSON file
 
-## Next features
+## v0.2
+ * Configurations check
+ * Internal status and metrics http endpoint
+ * WebUI
+
+## v0.3
+ * Cache
  * HTTP/2 support
- * Cache 
  * HTTPS support
  
  If you have any suggestion don't hesitate to open an issue, pull requests are welcome too.
@@ -35,6 +41,16 @@ Type `slb -h` for the command line help
 After the configuration file completed you can type only `slb` to start SLB with verbose mode, that command will log the output from SLB in console. That will print something like that:
 
 ```
+2017/09/26 17:54:45 run app...
+2017/09/26 17:54:45 Start SLB (LbServer)
+2017/09/26 17:54:45 Create worker pool with [1]
+2017/09/26 17:54:45 Prepare to run server ...
+2017/09/26 17:54:45 Setup and check configuration
+2017/09/26 17:54:45 Setup ok ...
+2017/09/26 17:54:45 Api server listen on 127.0.0.1:9292
+2017/09/26 17:54:45 Start frontend http server [Front1] at [127.0.0.1:9000]
+2017/09/26 17:54:45 Start frontend http server [Front2] at [127.0.0.1:9003]
+2017/09/26 17:54:45 Backend active again [Back1]
 ```
 
 ## Configuration options
@@ -68,38 +84,47 @@ After the configuration file completed you can type only `slb` to start SLB with
 
 ```
 {
-    "general": {
-        "maxProcs": 4,
-        "workerPoolSize": 10,
-    },
-    
-    "frontends" : [
+  "general": {
+    "maxProcs": 4,
+    "workerPoolSize": 1
+  },
+
+  "frontends" : [
+    {
+      "name" : "Front1",
+      "host" : "127.0.0.1",
+      "port" : 9000,
+      "route" : "/dir",
+      "timeout" : 5000,
+      "backends" : [
         {
-            "name" : "Front1",
-            "host" : "127.0.0.1",
-            "port" : 9000,
-            "route" : "/",
-            "timeout" : 5000,
-            
-            "backends" : [
-                {
-                    "name" : "Back1",
-                    "address" : "http://127.0.0.1:9001",
-                    "heartbeat" : "http://127.0.0.1:9001",
-                    "inactiveAfter" : 3,
-                    "heartbeatTime" : 5000,
-                    "retryTime" : 5000
-                },{
-                    "name" : "Back2",
-                    "address" : "http://127.0.0.1:9002",
-                    "heartbeat" : "http://127.0.0.1:9002",
-                    "inactiveAfter" : 3,
-                    "heartbeatTime" : 5000,
-                    "retryTime" : 5000
-                }
-            ]
+          "name" : "Back1",
+          "address" : "http://127.0.0.1:9001",
+          "heartbeat" : "http://127.0.0.1:9001",
+          "inactiveAfter" : 3,
+          "heartbeatTime" : 5000,
+          "retryTime" : 5000
         }
-    ]
+      ]
+    },
+    {
+      "name" : "Front2",
+      "host" : "127.0.0.1",
+      "port" : 9003,
+      "route" : "/",
+      "timeout" : 5000,
+      "backends" : [
+        {
+          "name" : "Back1",
+          "address" : "http://127.0.0.1:9002",
+          "heartbeat" : "http://127.0.0.1:9002",
+          "inactiveAfter" : 3,
+          "heartbeatTime" : 5000,
+          "retryTime" : 5000
+        }
+      ]
+    }
+  ]
 }
 ```
 
