@@ -1,15 +1,22 @@
 {
-	"ImportPath": "github.com/eduardonunesp/sslb",
-	"GoVersion": "go1.5.1",
+	"ImportPath": "github.com/linsheng9731/SLB",
+	"GoVersion": "go1.8",
+	"GodepVersion": "v79",
 	"Deps": [
 		{
 			"ImportPath": "github.com/codegangsta/cli",
-			"Comment": "1.2.0-161-gf445c89",
+			"Comment": "v1.10.1",
 			"Rev": "f445c894402839580d30de47551cedc152dad814"
 		},
 		{
-			"ImportPath": "github.com/olekukonko/tablewriter",
-			"Rev": "b9346ac189c55dd419f85c7ad2cd56f810bf19d6"
+			"ImportPath": "github.com/containous/mux",
+			"Comment": "v1.1-59-gaf6ea92",
+			"Rev": "af6ea922f7683d9706834157e6b0610e22ccb2db"
+		},
+		{
+			"ImportPath": "github.com/urfave/negroni",
+			"Comment": "v0.2.0-132-gccc4a14",
+			"Rev": "ccc4a14984828dcb944e6f17fa4a967b18624f2b"
 		},
 		{
 			"ImportPath": "github.com/xeipuuv/gojsonpointer",
