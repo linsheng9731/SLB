@@ -12,8 +12,8 @@ import (
 )
 
 type API struct {
-	s   *server.LbServer
-	msg chan int
+	Serer *server.LbServer
+	msg   chan int
 }
 
 func NewAPI(s *server.LbServer, msg chan int) *API {
@@ -30,7 +30,7 @@ func (api *API) check(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) configuration(w http.ResponseWriter, r *http.Request) {
-	b, err := json.MarshalIndent(api.s.Configuration, "", "  ")
+	b, err := json.MarshalIndent(api.Serer.Configuration, "", "  ")
 	if err != nil {
 		log.Println(err)
 	}
@@ -38,9 +38,7 @@ func (api *API) configuration(w http.ResponseWriter, r *http.Request) {
 }
 
 func (api *API) statistic(w http.ResponseWriter, r *http.Request) {
-	stat := NewStat(api.s)
-	bb, _ := json.Marshal(stat)
-	log.Println(string(bb))
+	stat := NewStat(api.Serer)
 	b, err := json.MarshalIndent(stat, "", "  ")
 	if err != nil {
 		log.Println(err)

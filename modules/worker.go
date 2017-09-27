@@ -88,7 +88,8 @@ func searchBackend(frontend *Frontend) *Backend {
 	frontend.Lock()
 	defer frontend.Unlock()
 	var backendWithMinScore *Backend
-	for idx, backend := range frontend.BackendList {
+	var idx = 0
+	for _, backend := range frontend.BackendList {
 		if backend.Failed {
 			continue
 		}
@@ -100,6 +101,7 @@ func searchBackend(frontend *Frontend) *Backend {
 				backendWithMinScore = backend
 			}
 		}
+		idx++
 		backend.RUnlock()
 	}
 	return backendWithMinScore

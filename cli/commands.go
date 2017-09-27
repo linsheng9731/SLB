@@ -18,6 +18,7 @@ import (
 
 var serverHolder *server.LbServer
 var apiChannel chan int
+var apiInstance *api.API
 
 func handlePanic() {
 	if err := recover(); err != nil {
@@ -47,7 +48,7 @@ func RunServer(c *cli.Context) {
 	log.Println("Prepare to run server ...")
 	s.Start()
 
-	apiInstance := api.NewAPI(serverHolder, apiChannel)
+	apiInstance = api.NewAPI(serverHolder, apiChannel)
 	apiInstance.Listen(configuration.GeneralConfig.APIAddres())
 	go messageHandler(apiChannel, s)
 	listenSignal()
@@ -111,6 +112,7 @@ func messageHandler(apiChannel chan int, s *server.LbServer) {
 				log.Println("Prepare to run server ...")
 				s.Start()
 				serverHolder = s
+				apiInstance.Serer = s
 			default:
 				log.Println(fmt.Sprintf("Received a unrecognized message: %d", msg))
 			}
