@@ -12,10 +12,12 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 )
 
 var serverHolder *server.LbServer
+var apiChannel chan int
 
 func handlePanic() {
 	if err := recover(); err != nil {
@@ -30,7 +32,7 @@ func RunServer(c *cli.Context) {
 		log.SetOutput(ioutil.Discard)
 	}
 
-	apiChannel := make(chan int)
+	apiChannel = make(chan int)
 	defer handlePanic()
 
 	filename := common.CONFIG_FILENAME
@@ -48,12 +50,52 @@ func RunServer(c *cli.Context) {
 	apiInstance := api.NewAPI(apiChannel)
 	apiInstance.Listen(configuration.GeneralConfig.APIAddres())
 	go messageHandler(apiChannel, s)
-
+	listenSignal()
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
+
+	f, err := os.Create("slb.pid")
+	if err != nil {
+		log.Fatal(err)
+	}
+	_, err = f.WriteString(strconv.Itoa(os.Getpid()))
+	if err != nil {
+		log.Fatal(err)
+	}
+	f.Close()
+
 	log.Println(<-ch)
 	log.Println("Prepare to stop server ...")
 	serverHolder.Stop()
+}
+
+func listenSignal() {
+	s := make(chan os.Signal, 1)
+	signal.Notify(s, syscall.SIGHUP)
+	go func() {
+		for {
+			<-s
+			go func() { apiChannel <- common.RELOAD }()
+			log.Println("Receive hot reload signal.")
+		}
+	}()
+}
+
+func HotReload(c *cli.Context) {
+	f, err := os.Open("./slb.pid")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	var pid int
+	_, err = fmt.Fscanf(f, "%d\n", &pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Read pid from slb.pid : %d ", pid)
+	syscall.Kill(int(pid), syscall.SIGHUP) // reload
+	log.Println("Send reload signal to lb server.")
+
 }
 
 func messageHandler(apiChannel chan int, s *server.LbServer) {

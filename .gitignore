@@ -3,6 +3,7 @@
 *.a
 *.so
 .idea
+slb.pid
 # Folders
 _obj
 _test

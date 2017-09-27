@@ -47,7 +47,7 @@ func activeMark(b *modules.Backend) {
 	if b.ActiveTries >= b.ActiveAfter {
 		if b.Failed {
 			b.Failed = false
-			log.Printf("Backend active again [%s]", b.Name)
+			log.Printf("Backend active  [%s]", b.Name)
 		}
 		b.Active = true
 		b.InactiveTries = 0

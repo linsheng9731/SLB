@@ -2,7 +2,6 @@ package cli
 
 import (
 	"github.com/codegangsta/cli"
-	"log"
 	"os"
 )
 
@@ -22,16 +21,21 @@ func CreateAPP() *cli.App {
 	app.Flags = []cli.Flag{
 		cli.BoolFlag{
 			Name:  "silence, s",
-			Usage: "activate the silence model",
+			Usage: "drop verbose log information ",
 		},
 		cli.StringFlag{
 			Name:  "filename, f",
 			Usage: "set the filename as the configuration",
 		},
 	}
-
+	app.Commands = []cli.Command{
+		{
+			Name:   "reload",
+			Usage:  "reload configure without downtime",
+			Action: HotReload,
+		},
+	}
 	app.Action = RunServer
-	log.Println("run app...")
 	app.Run(os.Args)
 
 	return app

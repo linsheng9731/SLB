@@ -83,6 +83,7 @@ func execRequest(backend *Backend, r *http.Request) SLBRequest {
 	return ret
 }
 
+// round robin
 func searchBackend(frontend *Frontend) *Backend {
 	frontend.Lock()
 	defer frontend.Unlock()
@@ -104,12 +105,23 @@ func searchBackend(frontend *Frontend) *Backend {
 	return backendWithMinScore
 }
 
+// weight
+func weightSearch(frontend *Frontend) {
+
+}
+
+// random
+func randomSerach(frontend *Frontend) {
+
+}
+
 func (w *Worker) Run(r *http.Request, frontend *Frontend) SLBRequestChan {
 	w.Lock()
 	w.Idle = false
 	w.Unlock()
 
 	chanReceiver := make(SLBRequestChan)
+	frontend.Pos = 0
 	go func(w *Worker, c SLBRequestChan, f *Frontend) {
 		defer func() {
 			if rec := recover(); rec != nil {

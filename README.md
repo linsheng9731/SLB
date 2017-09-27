@@ -7,7 +7,7 @@ SLB improved sslb , so it's no super simple anymore, just simple.
 ## Features
  * Http proxy
  * Single binary with no other dependencies for easy deployment
- * Dynamic reloading without restart (curl http://APIHost:APIPort/reload default at http://127.0.0.1:9292/reload)
+ * Dynamic reloading without restart (SLB reload)
  * Really easy to configure, just a little JSON file
  * Support to WebSockets
 

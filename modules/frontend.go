@@ -12,6 +12,7 @@ type Frontend struct {
 	BackendList
 	sync.RWMutex
 	Close chan bool
+	Pos   int
 }
 
 type FrontendList []*Frontend

@@ -9,10 +9,6 @@ import (
 	"net/http"
 )
 
-const (
-	CONFIG_FILENAME = "config.json"
-)
-
 type API struct {
 	msg chan int
 }
