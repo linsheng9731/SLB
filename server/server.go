@@ -13,10 +13,9 @@ import (
 )
 
 var (
-	errNoFrontend  = common.ErrNoFrontend
-	errNoBackend   = common.ErrNoBackend
-	errPortExists  = common.ErrPortExists
-	errRouteExists = common.ErrRouteExists
+	errNoFrontend = common.ErrNoFrontend
+	errNoBackend  = common.ErrNoBackend
+	errPortExists = common.ErrPortExists
 )
 
 type ShutdownChan chan bool
@@ -119,9 +118,6 @@ func (s *LbServer) RunFrontendServer(frontend *modules.Frontend) {
 
 func (s *LbServer) preChecksBeforeAdd(newFrontend *modules.Frontend) error {
 	for _, frontend := range s.FrontendList {
-		if frontend.Route == newFrontend.Route {
-			return errRouteExists
-		}
 
 		if frontend.Port == newFrontend.Port {
 			return errPortExists

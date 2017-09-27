@@ -75,7 +75,6 @@ Type `slb -h` for the command line help
 After the configuration file completed you can type only `slb` to start SLB with verbose mode, that command will log the output from SLB in console. That will print something like that:
 
 ```
-2017/09/26 17:54:45 run app...
 2017/09/26 17:54:45 Start SLB (LbServer)
 2017/09/26 17:54:45 Create worker pool with [1]
 2017/09/26 17:54:45 Prepare to run server ...
@@ -109,10 +108,10 @@ After the configuration file completed you can type only `slb` to start SLB with
 * backends:
 	* name: Just a identifier (required)
 	* address: Address (URL) for your backend (required)
-	* hearbeat: Addres to send Head request to test if it's ok (required)
+	* hearbeat: Address to send Head request to test if it's ok (required)
 	* hbmethod: Method used in request to check the heartbeat (default: HEAD)
 	* inactiveAfter: Consider the backend inactive after the number of checks (default: 3)
-	* activeAfter: COnsider the backend active after the number of checks (default: 1)
+	* activeAfter: Consider the backend active after the number of checks (default: 1)
 	* heartbeatTime: The interval to send a "ping" (default: 30000ms)
 	* retryTime: The interval to send a "ping" after the first failed "ping" (default: 5000ms)
 
@@ -135,15 +134,30 @@ After the configuration file completed you can type only `slb` to start SLB with
 
 
 ## LICENSE
-Copyright 2016-2017, Buoyant Inc. All rights reserved.
+Copyright (c) 2017, Lin Shengsheng
+All rights reserved.
 
-Licensed under the Apache License, Version 2.0 (the "License"); you may not use
-these files except in compliance with the License. You may obtain a copy of the
-License at
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
 
-    http://www.apache.org/licenses/LICENSE-2.0
+* Redistributions of source code must retain the above copyright notice, this
+  list of conditions and the following disclaimer.
 
-Unless required by applicable law or agreed to in writing, software distributed
-under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-CONDITIONS OF ANY KIND, either express or implied. See the License for the
-specific language governing permissions and limitations under the License.
+* Redistributions in binary form must reproduce the above copyright notice,
+  this list of conditions and the following disclaimer in the documentation
+  and/or other materials provided with the distribution.
+
+* Neither the name of slb nor the names of its
+  contributors may be used to endorse or promote products derived from
+  this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

@@ -47,7 +47,7 @@ func RunServer(c *cli.Context) {
 	log.Println("Prepare to run server ...")
 	s.Start()
 
-	apiInstance := api.NewAPI(apiChannel)
+	apiInstance := api.NewAPI(serverHolder, apiChannel)
 	apiInstance.Listen(configuration.GeneralConfig.APIAddres())
 	go messageHandler(apiChannel, s)
 	listenSignal()
@@ -70,7 +70,7 @@ func RunServer(c *cli.Context) {
 }
 
 func listenSignal() {
-	s := make(chan os.Signal, 1)
+	s := make(chan os.Signal)
 	signal.Notify(s, syscall.SIGHUP)
 	go func() {
 		for {

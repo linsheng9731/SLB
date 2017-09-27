@@ -1,31 +1,61 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/containous/mux"
 	"github.com/linsheng9731/SLB/common"
+	"github.com/linsheng9731/SLB/server"
 	"github.com/urfave/negroni"
 	"log"
 	"net/http"
 )
 
 type API struct {
+	s   *server.LbServer
 	msg chan int
 }
 
-func NewAPI(msg chan int) *API {
-	return &API{msg}
+func NewAPI(s *server.LbServer, msg chan int) *API {
+	return &API{s, msg}
 }
 
-func (api *API) reload(response http.ResponseWriter, request *http.Request) {
+func (api *API) reload(w http.ResponseWriter, r *http.Request) {
 	log.Println("API server get reload configuration request.")
 	go func() { api.msg <- common.RELOAD }()
+}
+
+func (api *API) check(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "ok")
+}
+
+func (api *API) configuration(w http.ResponseWriter, r *http.Request) {
+	b, err := json.MarshalIndent(api.s.Configuration, "", "  ")
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Fprintln(w, string(b))
+}
+
+func (api *API) statistic(w http.ResponseWriter, r *http.Request) {
+	stat := NewStat(api.s)
+	bb, _ := json.Marshal(stat)
+	log.Println(string(bb))
+	b, err := json.MarshalIndent(stat, "", "  ")
+	if err != nil {
+		log.Println(err)
+	}
+
+	fmt.Fprintln(w, string(b))
 }
 
 func (api *API) Listen(address string) {
 	var handlerInstance = negroni.New()
 	router := mux.NewRouter()
 	router.Methods("GET").Path("/reload").HandlerFunc(api.reload)
+	router.Methods("GET").Path("/health-check").HandlerFunc(api.check)
+	router.Methods("GET").Path("/config").HandlerFunc(api.configuration)
+	router.Methods("GET").Path("/status").HandlerFunc(api.statistic)
 	handlerInstance.UseHandler(router)
 	log.Println(fmt.Sprintf("Api server listen on %s", address))
 	go func() {

@@ -31,7 +31,7 @@ func CreateAPP() *cli.App {
 	app.Commands = []cli.Command{
 		{
 			Name:   "reload",
-			Usage:  "reload configure without downtime",
+			Usage:  "reload configuration without downtime",
 			Action: HotReload,
 		},
 	}
