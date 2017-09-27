@@ -99,6 +99,23 @@ func HotReload(c *cli.Context) {
 
 }
 
+func StopCommand(c *cli.Context) {
+	f, err := os.Open("./slb.pid")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	var pid int
+	_, err = fmt.Fscanf(f, "%d\n", &pid)
+	if err != nil {
+		log.Fatal(err)
+	}
+	log.Printf("Read pid from slb.pid : %d ", pid)
+	syscall.Kill(int(pid), syscall.SIGINT) // interrupt
+	log.Println("Send interrupt signal to lb server.")
+
+}
+
 func messageHandler(apiChannel chan int, s *server.LbServer) {
 	for {
 		select {

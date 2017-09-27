@@ -34,6 +34,11 @@ func CreateAPP() *cli.App {
 			Usage:  "reload configuration without downtime",
 			Action: HotReload,
 		},
+		{
+			Name:   "stop",
+			Usage:  "stop lb server by send a INT signal",
+			Action: StopCommand,
+		},
 	}
 	app.Action = RunServer
 	app.Run(os.Args)

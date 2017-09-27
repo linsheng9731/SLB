@@ -18,6 +18,8 @@ To install:
 
 ```
 go get github.com/linsheng9731/SLB
+cd $GOPATH/src/github.com/linsheng9731/SLB
+go install
 ```
 
 Don't forget to create your configuration file `config.json` at the same directory of project and run it.
