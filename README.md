@@ -6,6 +6,7 @@ SLB improved sslb , so it's no super simple anymore, just simple.
 
 ## Features
  * Http proxy
+ * Rest API
  * Single binary with no other dependencies for easy deployment
  * Dynamic reloading without restart (SLB reload)
  * Really easy to configure, just a little JSON file
@@ -83,7 +84,7 @@ After the configuration file completed you can type only `slb` to start SLB with
 2017/09/26 17:54:45 Api server listen on 127.0.0.1:9292
 2017/09/26 17:54:45 Start frontend http server [Front1] at [127.0.0.1:9000]
 2017/09/26 17:54:45 Start frontend http server [Front2] at [127.0.0.1:9003]
-2017/09/26 17:54:45 Backend active again [Back1]
+2017/09/26 17:54:45 Backend active [Back1]
 ```
 
 ## Configuration options
@@ -115,6 +116,10 @@ After the configuration file completed you can type only `slb` to start SLB with
 	* heartbeatTime: The interval to send a "ping" (default: 30000ms)
 	* retryTime: The interval to send a "ping" after the first failed "ping" (default: 5000ms)
 
+## Rest API
+* http://apihost:apiport/health-check (deafult: http://127.0.0.1:9292/health-check)
+* http://apihost:apiport/config (deafult: http://127.0.0.1:9292/config)
+* http://apihost:apiport/status (deafult: http://127.0.0.1:9292/status)
 
 # Road map
 ## v0.2
