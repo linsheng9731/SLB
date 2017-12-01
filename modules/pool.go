@@ -18,7 +18,6 @@ func NewWorkerPool(configuration config.Configuration) *WorkerPool {
 	wp := &WorkerPool{
 		Configuration: configuration,
 	}
-
 	wp.createPool()
 	return wp
 }
@@ -53,7 +52,6 @@ func (wp *WorkerPool) Resize() {
 
 func (wp *WorkerPool) CountIdle() int {
 	count := 0
-
 	for _, worker := range wp.Workers {
 		worker.RLock()
 		if worker.Idle {
@@ -61,18 +59,14 @@ func (wp *WorkerPool) CountIdle() int {
 		}
 		worker.RUnlock()
 	}
-
 	return count
 }
 
 func (wp *WorkerPool) Get(r *http.Request, frontend *Frontend) SLBRequestChan {
 	wp.Lock()
 	defer wp.Unlock()
-
 	var idleWorker *Worker
-
 	for {
-
 		for _, worker := range wp.Workers {
 			worker.Lock()
 			if worker.Idle {
@@ -83,18 +77,15 @@ func (wp *WorkerPool) Get(r *http.Request, frontend *Frontend) SLBRequestChan {
 			}
 			worker.Unlock()
 		}
-
 		if idleWorker == nil {
 			idleWorker = NewWorker()
 			idleWorker.Lock()
 			idleWorker.Idle = false
 			idleWorker.Unlock()
 		}
-
 		if idleWorker != nil {
 			break
 		}
-
 		time.Sleep(time.Millisecond)
 	}
 

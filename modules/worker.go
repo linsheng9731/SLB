@@ -113,7 +113,7 @@ func weightSearch(frontend *Frontend) {
 }
 
 // random
-func randomSerach(frontend *Frontend) {
+func randomSearch(frontend *Frontend) {
 
 }
 
