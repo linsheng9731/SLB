@@ -1,7 +1,7 @@
 package api
 
-import "github.com/linsheng9731/SLB/modules"
-import "github.com/linsheng9731/SLB/server"
+import "github.com/linsheng9731/slb/modules"
+import "github.com/linsheng9731/slb/server"
 
 type Statistic struct {
 	FrontendList []FrontendStat `json:"frontends"`

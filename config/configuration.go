@@ -23,6 +23,7 @@ type FrontendConfig struct {
 	Port           int           `json:"port"`
 	Route          string        `json:"route"`
 	Timeout        time.Duration `json:"timeout"`
+	Strategy       string        `json:"strategy"`
 	BackendsConfig `json:"backends"`
 }
 type FrontendsConfig []FrontendConfig
@@ -36,7 +37,7 @@ type BackendConfig struct {
 
 	ActiveAfter   int `json:"activeAfter"`
 	InactiveAfter int `json:"inactiveAfter"` // Consider inactive after max inactiveAfter
-	Weight        int `json:"weigth"`
+	Weight        float64 `json:"weigth"`
 
 	HeartbeatTime time.Duration `json:"heartbeatTime"` // Heartbeat time if health
 	RetryTime     time.Duration `json:"retryTime"`     // Retry to time after failed

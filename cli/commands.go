@@ -4,10 +4,10 @@ import (
 	"fmt"
 	//"io/ioutil"
 	"github.com/codegangsta/cli"
-	"github.com/linsheng9731/SLB/api"
-	"github.com/linsheng9731/SLB/common"
-	"github.com/linsheng9731/SLB/config"
-	"github.com/linsheng9731/SLB/server"
+	"github.com/linsheng9731/slb/api"
+	"github.com/linsheng9731/slb/common"
+	"github.com/linsheng9731/slb/config"
+	"github.com/linsheng9731/slb/server"
 	"io/ioutil"
 	"log"
 	"os"
@@ -46,7 +46,8 @@ func RunServer(c *cli.Context) {
 	s = server.NewServer(configuration)
 	serverHolder = s
 	log.Println("Prepare to run server ...")
-	s.Start()
+	s.Setup()
+   	s.Run()
 
 	apiInstance = api.NewAPI(serverHolder, apiChannel)
 	apiInstance.Listen(configuration.GeneralConfig.APIAddres())
@@ -127,7 +128,7 @@ func messageHandler(apiChannel chan int, s *server.LbServer) {
 				s.Stop()
 				s = server.NewServer(configuration)
 				log.Println("Prepare to run server ...")
-				s.Start()
+				s.Run()
 				serverHolder = s
 				apiInstance.Serer = s
 			default:

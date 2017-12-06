@@ -1,7 +1,7 @@
 package healthcheck
 
 import (
-	"github.com/linsheng9731/SLB/modules"
+	"github.com/linsheng9731/slb/modules"
 	"log"
 	"net/http"
 	"time"

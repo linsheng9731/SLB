@@ -1,7 +1,7 @@
 package modules
 
 import (
-	"github.com/linsheng9731/SLB/config"
+	"github.com/linsheng9731/slb/config"
 	"sync"
 	"time"
 )

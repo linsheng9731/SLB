@@ -1,7 +1,6 @@
 package config
 
 import (
-	"runtime"
 	"testing"
 	"time"
 )
@@ -10,7 +9,7 @@ func TestFileparserGeneral(t *testing.T) {
 	jsonConf := []byte(`
     {
         "general": {
-            "maxProcs": 4,
+            "maxProcs": 2,
             "gracefulShutdown": true,
             "logLevel": "info",
             "websocket": true,
@@ -23,15 +22,13 @@ func TestFileparserGeneral(t *testing.T) {
                 "host" : "127.0.0.1",
                 "port" : 9000,
                 "route" : "/",
-                "timeout" : 5000
+                "timeout" : 5000,
+				"strategy": "rnd"
             }
         ]
     }`)
 
 	conf := ConfParser(jsonConf)
-	if conf.GeneralConfig.MaxProcs != runtime.NumCPU() {
-		t.Fatal("MaxProcs is wrong", conf.GeneralConfig.MaxProcs)
-	}
 
 	if conf.GeneralConfig.WorkerPoolSize != 10 {
 		t.Fatal("WorkerPoolSize is wrong", conf.GeneralConfig.WorkerPoolSize)
@@ -75,7 +72,8 @@ func TestFileparserFrontend(t *testing.T) {
                 "name" : "Front1",
                 "host" : "127.0.0.1",
                 "port" : 9000,
-                "route" : "/"
+                "route" : "/",
+				"strategy": "rnd"
             }
         ]
     }`)
@@ -123,6 +121,7 @@ func TestFileparserBackend(t *testing.T) {
                 "port" : 9000,
                 "route" : "/",
                 "timeout" : 5000,
+				"strategy": "rnd",
 
                 "backends" : [
                     {

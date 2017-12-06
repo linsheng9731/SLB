@@ -75,6 +75,10 @@ const ConfigSchema = `
             "id": "port",
             "type": "integer"
           },
+		  "strategy": {
+			"id": "strategy",
+            "type": "string"
+			},
           "route": {
             "id": "route",
             "type": "string"
@@ -139,7 +143,8 @@ const ConfigSchema = `
           "name",
           "host",
           "port",
-          "route"
+          "route",
+          "strategy"
         ]
       }
     }
