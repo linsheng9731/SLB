@@ -1,28 +1,23 @@
 package server
 
 import (
-	"github.com/linsheng9731/slb/common"
+	"crypto/tls"
 	"github.com/linsheng9731/slb/config"
+	"github.com/linsheng9731/slb/healthcheck"
 	"github.com/linsheng9731/slb/modules"
 	"log"
-	"net/http"
-	"runtime"
-	"sync"
-	"crypto/tls"
 	"net"
-)
-
-var (
-	errNoFrontend = common.ErrNoFrontend
-	errNoBackend  = common.ErrNoBackend
-	errPortExists = common.ErrPortExists
+	"net/http"
+	"sync"
+	"time"
 )
 
 type ShutdownChan chan bool
 
+var holders []*healthcheck.Guard
+
 type LbServer struct {
 	config.Configuration
-	modules.FrontendList
 	ShutdownChan
 	sync.Mutex
 	*sync.WaitGroup
@@ -37,45 +32,45 @@ func NewServer(configuration config.Configuration) *LbServer {
 }
 
 func (s *LbServer) Run() {
-	for _, f := range s.FrontendList {
-		modules.GetTable().AddRoute(f)
-		h := newHTTPProxy(f)
-		l :=  modules.Listen {
-			f.Address(),
-			"http",
-			f.Timeout,
-			f.Timeout,
-		}
-		// listen port
-		if err := modules.ListenAndServeHTTP(l, h); err != nil {
-			log.Fatal("[FATAL]", err)
-		}
+
+	for _, f := range s.FrontendConfigs {
+		modules.GetTable().AddRoute(&f)
+	}
+
+	for _, f := range s.FrontendConfigs {
+		var f = f // catch variable
+		log.Println("start to listen frontend " + f.Address())
+		go func() {
+			h := newHTTPProxy(&f)
+			l := modules.Listen{
+				Addr:         f.Address(),
+				Proto:        "http",
+				ReadTimeout:  f.Timeout * time.Millisecond,
+				WriteTimeout: f.Timeout * time.Millisecond,
+			}
+			// listen port
+			if err := modules.ListenAndServeHTTP(l, h); err != nil {
+				log.Fatal("[FATAL]", err)
+			}
+		}()
+	}
+
+	t := modules.GetTable()
+	for _, f := range s.FrontendConfigs {
+		g := healthcheck.NewGuard(t, f)
+		g.Check()
+		holders = append(holders, g)
 	}
 }
 
 func (s *LbServer) Stop() {
-
-}
-
-func (s *LbServer) Setup() {
-	runtime.GOMAXPROCS(s.Configuration.GeneralConfig.MaxProcs)
-
-	for _, frontend := range s.Configuration.FrontendsConfig {
-
-		newFrontend := modules.NewFrontend(frontend)
-		for _, backend := range frontend.BackendsConfig {
-			newFrontend.BackendList = append(newFrontend.BackendList, modules.NewBackend(backend))
-		}
-
-		if err := s.preChecksBeforeAdd(newFrontend); err != nil {
-			log.Fatal(err.Error())
-		} else {
-			s.FrontendList = append(s.FrontendList, newFrontend)
-		}
+	// stop guards
+	for _, h := range holders {
+		h.Stop()
 	}
 }
 
-func newHTTPProxy(f *modules.Frontend) http.Handler {
+func newHTTPProxy(f *config.FrontendConfig) http.Handler {
 
 	pick := modules.Picker[f.Strategy] // random target strategy and next target strategy
 	if pick == nil {
@@ -84,20 +79,20 @@ func newHTTPProxy(f *modules.Frontend) http.Handler {
 	}
 	newTransport := func(tlscfg *tls.Config) *http.Transport {
 		return &http.Transport{
-			ResponseHeaderTimeout: f.Timeout,
+			ResponseHeaderTimeout: f.Timeout * time.Millisecond,
 			MaxIdleConnsPerHost:   10,
 			Dial: (&net.Dialer{
-				Timeout:   f.Timeout,
-				KeepAlive: f.Timeout,
+				Timeout:   f.Timeout * time.Millisecond,
+				KeepAlive: f.Timeout * time.Millisecond,
 			}).Dial,
 			TLSClientConfig: tlscfg,
 		}
 	}
 	// http handler
 	return &modules.HttpProxy{
-		Transport:         newTransport(nil),
+		Transport: newTransport(nil),
 		Lookup: func(r *http.Request) *modules.Route {
-			t := modules.GetTable().Lookup(r,f.Port, pick)
+			t := modules.GetTable().Lookup(r, f.Port, pick)
 			if t == nil {
 				//notFound.Inc(1)
 				log.Print("[WARN] No route for ", r.Host, r.URL)
@@ -105,16 +100,4 @@ func newHTTPProxy(f *modules.Frontend) http.Handler {
 			return t
 		},
 	}
-}
-
-func (s *LbServer) preChecksBeforeAdd(newFrontend *modules.Frontend) error {
-	for _, frontend := range s.FrontendList {
-		if frontend.Port == newFrontend.Port {
-			return errPortExists
-		}
-		if len(newFrontend.BackendList) == 0 {
-			return errNoBackend
-		}
-	}
-	return nil
 }

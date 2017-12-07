@@ -49,29 +49,22 @@ func ConfParser(file []byte) Configuration {
 
 	jsonConfig := Configuration{
 		GeneralConfig: GeneralConfig{
-			MaxProcs:         runtime.NumCPU(),
-			WorkerPoolSize:   10,
-			GracefulShutdown: true,
-			Websocket:        true,
-			LogLevel:         "info",
-			RPCHost:          "127.0.0.1",
-			RPCPort:          42555,
-			APIHost:          "127.0.0.1",
-			APIPort:          9292,
+			MaxProcs:       runtime.NumCPU(),
+			WorkerPoolSize: 10,
+			Websocket:      true,
+			LogLevel:       "info",
+			APIHost:        "127.0.0.1",
+			APIPort:        9292,
 		},
-		FrontendsConfig: []FrontendConfig{
+		FrontendConfigs: []FrontendConfig{
 			{
-				Timeout: time.Millisecond * 30000,
-				BackendsConfig: []BackendConfig{
-					{
-						HBMethod:      "HEAD",
-						ActiveAfter:   1,
-						InactiveAfter: 3,
-						Weight:        1,
-						HeartbeatTime: time.Millisecond * 30000,
-						RetryTime:     time.Millisecond * 5000,
-					},
-				},
+				Timeout:        time.Millisecond * 30000,
+				HBMethod:       "HEAD",
+				ActiveAfter:    1,
+				InactiveAfter:  3,
+				HeartbeatTime:  time.Millisecond * 30000,
+				RetryTime:      time.Millisecond * 5000,
+				BackendsConfig: []BackendConfig{{Weight: 1}},
 			},
 		},
 	}

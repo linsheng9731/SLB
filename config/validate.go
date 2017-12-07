@@ -87,6 +87,30 @@ const ConfigSchema = `
             "id": "timeout",
             "type": "integer"
           },
+         "inactiveAfter": {
+		  "id": "inactiveAfter",
+			"type": "integer"
+          },
+          "activeAfter": {
+             "id": "activeAfter",
+             "type": "integer"
+           },
+           "heartbeatTime": {
+              "id": "heartbeatTime",
+               "type": "integer"
+           },
+           "retryTime": {
+               "id": "retryTime",
+               "type": "integer"
+            },
+           "heartbeat": {
+                "id": "heartbeat",
+                "type": "string"
+           },
+           "hbmethod": {
+               "id": "hbmethod",
+               "type": "string"
+            },
           "backends": {
             "id": "backends",
             "type": "array",
@@ -102,39 +126,14 @@ const ConfigSchema = `
                   "id": "address",
                   "type": "string"
                 },
-                "heartbeat": {
-                  "id": "heartbeat",
-                  "type": "string"
-                },
-                "hbmethod": {
-                  "id": "hbmethod",
-                  "type": "string"
-                },
                 "weigth": {
                   "id": "weigth",
-                  "type": "integer"
-                },
-                "inactiveAfter": {
-                  "id": "inactiveAfter",
-                  "type": "integer"
-                },
-                "activeAfter": {
-                  "id": "activeAfter",
-                  "type": "integer"
-                },
-                "heartbeatTime": {
-                  "id": "heartbeatTime",
-                  "type": "integer"
-                },
-                "retryTime": {
-                  "id": "retryTime",
                   "type": "integer"
                 }
               },
               "required": [
                 "name",
-                "address",
-                "heartbeat"
+                "address"
               ]
             }
           }

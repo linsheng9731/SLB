@@ -1,24 +1,24 @@
 package modules
 
 import (
-	"strings"
 	"log"
+	"strings"
 )
 
 // schemaHost splits a 'schema://host/path' prefix
 // into 'schema', 'host' and '/path'
 func schemaHost(prefix string) (schema string, host string) {
-	var s,h, p string
+	var s, h, p string
 	var ll []string
 	l := strings.Split(prefix, "://")
 
-	if len(l) > 2  {
+	if len(l) > 2 {
 		log.Print(prefix)
 		log.Fatal(" the host path is invalid!")
-	} else if len(l) == 2  {
-		s  = l[0]
-		l =  l[1:]
-	}   else {
+	} else if len(l) == 2 {
+		s = l[0]
+		l = l[1:]
+	} else {
 		s = "http"
 	}
 
@@ -37,4 +37,3 @@ func schemaHost(prefix string) (schema string, host string) {
 	}
 	return s, h
 }
-

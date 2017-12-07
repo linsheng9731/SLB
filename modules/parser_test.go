@@ -15,17 +15,17 @@ func TestHostParse(t *testing.T) {
 	prefix6 := "http://127.0.0.1"
 
 	s, h = schemaHost(prefix1)
-	if s != "http" || h != "127.0.0.1:80"  {
+	if s != "http" || h != "127.0.0.1:80" {
 		t.Fatal(s, h, p)
 	}
 
 	s, h = schemaHost(prefix2)
-	if s != "https" || h != "127.0.0.1"  {
+	if s != "https" || h != "127.0.0.1" {
 		t.Fatal(s, h, p)
 	}
 
 	s, h = schemaHost(prefix3)
-	if s != "http" || h != "127.0.0.1"  {
+	if s != "http" || h != "127.0.0.1" {
 		t.Fatal(s, h, p)
 	}
 

@@ -1,38 +1,36 @@
 package modules
 
 import (
-	"net/http"
-	"net/url"
-	"net/http/httputil"
-	"time"
 	"log"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"time"
 )
 
 type HttpProxy struct {
-
 	Transport http.RoundTripper
 
 	Lookup func(r *http.Request) *Route
 }
 
-func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request)  {
+func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	route := p.Lookup(r)
-	log.Print(route)
 	if route == nil {
 		w.WriteHeader(404)
 		return
 	}
 
 	schema, host := schemaHost(route.Dst)
-	targetURL := &url.URL {
-		Scheme:   schema,
-		Host:     host,
-		Path:     r.URL.Path,
+	targetURL := &url.URL{
+		Scheme: schema,
+		Host:   host,
+		Path:   r.URL.Path,
 	}
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 	var httpProxy http.Handler
-	switch  {
+	switch {
 	case upgrade == "websocket" || upgrade == "Websocket":
 		log.Fatal("not impl websocket!")
 		return

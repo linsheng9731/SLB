@@ -46,4 +46,3 @@ var randIntn = func(n int) int {
 	}
 	return int(time.Now().UnixNano()/int64(time.Microsecond)) % n
 }
-

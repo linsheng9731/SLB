@@ -1,6 +1,7 @@
 package modules
 
 import (
+	"github.com/linsheng9731/slb/config"
 	"net/http"
 	"sync/atomic"
 )
@@ -20,27 +21,23 @@ func GetTable() Table {
 	return table.Load().(Table)
 }
 
-func (t Table )AddRoute(f *Frontend) *Table {
+func (t Table) AddRoute(f *config.FrontendConfig) *Table {
 	var tmp Route
-	for _, b := range f.BackendList {
-		tmp = Route{
-			Service :  b.Name,
-			Src     :  b.Name,
-			Dst     :  b.Address,
-			Weight  :  b.Weight,
-		}
+	for _, b := range f.BackendsConfig {
+		tmp = NewRoute(b.Name, b.Name, b.Address, b.Weight)
 		t[f.Port] = append(t[f.Port], tmp)
 	}
 	return &t
 }
 
-
 func (t Table) Lookup(req *http.Request, port int, pick picker) (route *Route) {
 	routes := GetTable()[port]
-	r := pick(routes)
+	var activeRoutes []Route
+	for _, r := range routes {
+		if r.Active {
+			activeRoutes = append(activeRoutes, r)
+		}
+	}
+	r := pick(activeRoutes)
 	return r
 }
-
-
-
-

@@ -1,17 +1,17 @@
 package modules
 
 import (
-	"net/http"
-	"net"
-	"crypto/tls"
-	"sync"
 	"context"
+	"crypto/tls"
 	"fmt"
 	proxyproto "github.com/armon/go-proxyproto"
+	"net"
+	"net/http"
+	"sync"
 	"time"
 )
 
-type Server interface {
+type HttpServer interface {
 	Close() error
 	Serve(l net.Listener) error
 	Shutdown(ctx context.Context) error
@@ -21,16 +21,15 @@ var (
 	// mu guards servers which contains the list
 	// of running proxy servers.
 	mu      sync.Mutex
-	servers []Server
+	servers []HttpServer
 )
 
 type Listen struct {
-	Addr          string
-	Proto         string
-	ReadTimeout   time.Duration
-	WriteTimeout  time.Duration
+	Addr         string
+	Proto        string
+	ReadTimeout  time.Duration
+	WriteTimeout time.Duration
 }
-
 
 func ListenAndServeHTTP(l Listen, h http.Handler) error {
 	ln, err := ListenTCP(l.Addr, nil)
@@ -46,7 +45,7 @@ func ListenAndServeHTTP(l Listen, h http.Handler) error {
 	return serve(ln, srv)
 }
 
-func serve(ln net.Listener, srv Server) error {
+func serve(ln net.Listener, srv HttpServer) error {
 	mu.Lock()
 	servers = append(servers, srv)
 	mu.Unlock()
@@ -78,7 +77,6 @@ func ListenTCP(laddr string, cfg *tls.Config) (net.Listener, error) {
 
 	return ln, nil
 }
-
 
 // copied from http://golang.org/src/net/http/server.go?s=54604:54695#L1967
 // tcpKeepAliveListener sets TCP keep-alive timeouts on accepted

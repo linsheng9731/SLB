@@ -46,12 +46,11 @@ func RunServer(c *cli.Context) {
 	s = server.NewServer(configuration)
 	serverHolder = s
 	log.Println("Prepare to run server ...")
-	s.Setup()
-   	s.Run()
+	s.Run()
 
-	apiInstance = api.NewAPI(serverHolder, apiChannel)
-	apiInstance.Listen(configuration.GeneralConfig.APIAddres())
-	go messageHandler(apiChannel, s)
+	//apiInstance = api.NewAPI(serverHolder, apiChannel)
+	//apiInstance.Listen(configuration.GeneralConfig.APIAddres())
+	//go messageHandler(apiChannel, s)
 	listenSignal()
 	ch := make(chan os.Signal)
 	signal.Notify(ch, syscall.SIGINT, syscall.SIGTERM)
