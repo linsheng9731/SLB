@@ -38,7 +38,7 @@ func (t Table) AddRoute(f *config.FrontendConfig) *Table {
 	var route Route
 	routesMap := make(map[string][]Route)
 	for _, b := range f.BackendsConfig {
-		route = NewRoute(b.Name, b.Name, b.Hostname, b.Address, b.Weight)
+		route = NewRoute(b.Name, b.Name, b.Hostname, b.Address, b.IgnoreCheck, b.Weight)
 		routes, ok := routesMap[b.Hostname]
 		if ok {
 			routesMap[b.Hostname] = append(routes, route)

@@ -121,7 +121,8 @@ func TestFileparserBackend(t *testing.T) {
                     {
                         "name" : "Back1",
                         "address" : "http://127.0.0.1:9001",
-                        "weigth": 1
+                        "weigth": 1,
+						"ignore_check": true
                     }
                 ]
             }
@@ -131,5 +132,9 @@ func TestFileparserBackend(t *testing.T) {
 	conf := ConfParser(jsonConf)
 	if conf.FrontendConfigs[0].BackendsConfig[0].Name != "Back1" {
 		t.Fatal("Name is wrong", conf.FrontendConfigs[0].BackendsConfig[0].Name)
+	}
+
+	if conf.FrontendConfigs[0].BackendsConfig[0].IgnoreCheck != true {
+		t.Fatal("Ignore check is wrong", conf.FrontendConfigs[0].BackendsConfig[0].IgnoreCheck)
 	}
 }

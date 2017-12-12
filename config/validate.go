@@ -102,6 +102,10 @@ const ConfigSchema = `
                   "id": "hostname",
                   "type": "string"
                 },
+                "ignore_check": {
+                  "id": "ignore_check",
+                  "type": "boolean"
+                },
                 "weigth": {
                   "id": "weigth",
                   "type": "integer"

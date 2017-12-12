@@ -62,6 +62,11 @@ func flatRoutes(routes map[string][]modules.Route) []modules.Route {
 func (g Guard) detect(flattenRoutes []modules.Route) map[string][]modules.Route {
 	activeRoutes := make(map[string][]modules.Route)
 	for i, r := range flattenRoutes {
+		if r.IgnoreCheck {
+			flattenRoutes[i].Active = true
+			activeRoutes[r.Hostname] = append(activeRoutes[r.Hostname], r)
+			continue
+		}
 		h := r.Dst + g.frontendConfig.Heartbeat
 		err, rep := doRequest(h)
 		if err != nil || rep.StatusCode >= 400 {

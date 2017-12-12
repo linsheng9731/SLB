@@ -6,9 +6,9 @@ import (
 )
 
 func TestGuardFlatRoutes(t *testing.T) {
-	r1 := modules.NewRoute("", "", "", "back1", 1)
-	r2 := modules.NewRoute("", "", "", "back2", 1)
-	r3 := modules.NewRoute("", "", "", "back3", 1)
+	r1 := modules.NewRoute("", "", "", "back1", false, 1)
+	r2 := modules.NewRoute("", "", "", "back2", false, 1)
+	r3 := modules.NewRoute("", "", "", "back3", false, 1)
 	routesMap := make(map[string][]modules.Route)
 	routesMap["host1"] = []modules.Route{r1}
 	routesMap["host2"] = []modules.Route{r2, r3}

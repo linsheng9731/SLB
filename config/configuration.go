@@ -31,10 +31,11 @@ type FrontendConfigs []FrontendConfig
 
 // BackendConfig it's the configuration loaded
 type BackendConfig struct {
-	Name     string  `json:"name"`
-	Hostname string  `json:"hostname"`
-	Weight   float64 `json:"weigth"`
-	Address  string  `json:"address"`
+	Name        string  `json:"name"`
+	Hostname    string  `json:"hostname"`
+	Weight      float64 `json:"weigth"`
+	Address     string  `json:"address"`
+	IgnoreCheck bool    `json:"ignore_check"`
 }
 
 type BackendsConfig []BackendConfig

@@ -3,9 +3,9 @@ package modules
 import (
 	"github.com/linsheng9731/slb/config"
 	"log"
+	"net/http"
 	"testing"
 	"time"
-	"net/http"
 )
 
 var (
@@ -65,8 +65,8 @@ func TestTable_AddRoute(t *testing.T) {
 }
 
 func TestTable_Lookup(t *testing.T) {
-	req , _ := http.NewRequest("GET", "/", nil)
-	req.Host  = ""
+	req, _ := http.NewRequest("GET", "/", nil)
+	req.Host = ""
 	r := tt.Lookup(req, 9000, rndPicker)
 	if r.Hostname != "" {
 		t.Fatal("Table lookup route failed!")

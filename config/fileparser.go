@@ -57,7 +57,7 @@ func ConfParser(file []byte) Configuration {
 			{
 				Timeout:        time.Millisecond * 30000,
 				HeartbeatTime:  time.Millisecond * 30000,
-				BackendsConfig: []BackendConfig{{Weight: 1, Hostname: ""}},
+				BackendsConfig: []BackendConfig{{Weight: 1, Hostname: "", IgnoreCheck: false}},
 			},
 		},
 	}

@@ -21,11 +21,9 @@ func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	schema, host := schemaHost(route.Dst)
-	targetURL := &url.URL{
-		Scheme: schema,
-		Host:   host,
-		Path:   r.URL.Path,
-	}
+	targetURL := r.URL
+	targetURL.Host = host
+	targetURL.Scheme = schema
 
 	upgrade, accept := r.Header.Get("Upgrade"), r.Header.Get("Accept")
 	var httpProxy http.Handler
@@ -49,10 +47,11 @@ func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) ht
 		// mangle the request and target URL since the target
 		// URL is already in the correct format.
 		Director: func(req *http.Request) {
-			req.URL.Scheme = target.Scheme
-			req.URL.Host = target.Host
-			req.URL.Path = target.Path
-			req.URL.RawQuery = target.RawQuery
+			//req.URL.Scheme = target.Scheme
+			//req.URL.Host = target.Host
+			//req.URL.Path = target.Path
+			//req.URL.RawQuery = target.RawQuery
+			req.URL = target
 			if _, ok := req.Header["User-Agent"]; !ok {
 				// explicitly disable User-Agent so it's not set to default value
 				req.Header.Set("User-Agent", "")
