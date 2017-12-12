@@ -35,7 +35,7 @@ type BackendConfig struct {
 	Hostname    string  `json:"hostname"`
 	Weight      float64 `json:"weigth"`
 	Address     string  `json:"address"`
-	IgnoreCheck bool    `json:"ignore_check"`
+	IgnoreCheck bool    `json:"ignoreCheck"`
 }
 
 type BackendsConfig []BackendConfig

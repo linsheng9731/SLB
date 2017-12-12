@@ -122,7 +122,7 @@ func TestFileparserBackend(t *testing.T) {
                         "name" : "Back1",
                         "address" : "http://127.0.0.1:9001",
                         "weigth": 1,
-						"ignore_check": true
+						"ignoreCheck": true
                     }
                 ]
             }

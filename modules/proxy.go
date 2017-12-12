@@ -1,7 +1,9 @@
 package modules
 
 import (
+	"io"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -29,8 +31,13 @@ func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var httpProxy http.Handler
 	switch {
 	case upgrade == "websocket" || upgrade == "Websocket":
-		log.Fatal("not impl websocket!")
-		return
+		r.URL = targetURL
+		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
+			log.Println("https and wss are not implement yet!")
+			httpProxy = newRawHTTPProxy(targetURL.Host, net.Dial)
+		} else {
+			httpProxy = newRawHTTPProxy(targetURL.Host, net.Dial)
+		}
 	case accept == "text/event-stream":
 		httpProxy = newHTTPProxy(targetURL, p.Transport, time.Duration(10))
 	default:
@@ -74,4 +81,52 @@ type transport struct {
 func (t *transport) RoundTrip(r *http.Request) (*http.Response, error) {
 	t.resp, t.err = t.RoundTripper.RoundTrip(r)
 	return t.resp, t.err
+}
+
+type dialFunc func(net, add string) (net.Conn, error)
+
+func newRawHTTPProxy(host string, dial dialFunc) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		hj, ok := w.(http.Hijacker)
+		if !ok {
+			http.Error(w, "not a hijacker", http.StatusInternalServerError)
+			return
+		}
+
+		in, _, err := hj.Hijack()
+		if err != nil {
+			log.Printf("[ERROR] Hijack error for %s. %s", r.URL, err)
+			http.Error(w, "hijack error", http.StatusInternalServerError)
+			return
+		}
+
+		defer in.Close()
+
+		out, err := dial("tcp", host)
+
+		if err != nil {
+			log.Printf("[ERROR] WS error for %s. %s", r.URL, err)
+			http.Error(w, "error contacting backend server", http.StatusInternalServerError)
+			return
+		}
+		err = r.Write(out)
+		if err != nil {
+			log.Printf("[ERROR] WS error for %s. %s", r.URL, err)
+			http.Error(w, "error contacting backend server", http.StatusInternalServerError)
+			return
+		}
+
+		errCh := make(chan error, 2)
+		cp := func(dst io.Writer, src io.Reader) {
+			_, err := io.Copy(dst, src)
+			errCh <- err
+		}
+		go cp(out, in)
+		go cp(in, out)
+		err = <-errCh
+		if err != nil && err != io.EOF {
+			log.Printf("[INFO] WS error for %s. %s", r.URL, err)
+		}
+	})
 }

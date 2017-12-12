@@ -103,7 +103,7 @@ const ConfigSchema = `
                   "type": "string"
                 },
                 "ignore_check": {
-                  "id": "ignore_check",
+                  "id": "ignoreCheck",
                   "type": "boolean"
                 },
                 "weigth": {
