@@ -22,6 +22,7 @@ var apiInstance *api.API
 
 func handlePanic() {
 	if err := recover(); err != nil {
+		log.Println(err)
 		log.Fatal("LbServer start catch panic,exit.")
 	}
 }
@@ -113,7 +114,6 @@ func StopCommand(c *cli.Context) {
 	log.Printf("Read pid from slb.pid : %d ", pid)
 	syscall.Kill(int(pid), syscall.SIGINT) // interrupt
 	log.Println("Send interrupt signal to lb server.")
-
 }
 
 func messageHandler(apiChannel chan int, s *server.LbServer) {

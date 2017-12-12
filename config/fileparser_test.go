@@ -34,10 +34,6 @@ func TestFileparserGeneral(t *testing.T) {
 
 	conf := ConfParser(jsonConf)
 
-	if conf.GeneralConfig.WorkerPoolSize != 10 {
-		t.Fatal("WorkerPoolSize is wrong", conf.GeneralConfig.WorkerPoolSize)
-	}
-
 	if conf.GeneralConfig.LogLevel != "info" {
 		t.Fatal("LogLevel is wrong", conf.GeneralConfig.LogLevel)
 	}
@@ -86,10 +82,6 @@ func TestFileparserFrontend(t *testing.T) {
 
 	if conf.FrontendConfigs[0].Port != 9000 {
 		t.Fatal("Port is wrong", conf.FrontendConfigs[0].Port)
-	}
-
-	if conf.FrontendConfigs[0].Route != "/" {
-		t.Fatal("Route is wrong", conf.FrontendConfigs[0].Route)
 	}
 
 	timeout := time.Millisecond * 30000

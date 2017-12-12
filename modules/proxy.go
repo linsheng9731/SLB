@@ -10,8 +10,7 @@ import (
 
 type HttpProxy struct {
 	Transport http.RoundTripper
-
-	Lookup func(r *http.Request) *Route
+	Lookup    func(r *http.Request) *Route
 }
 
 func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {

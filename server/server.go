@@ -57,7 +57,7 @@ func (s *LbServer) Run() {
 
 	t := modules.GetTable()
 	for _, f := range s.FrontendConfigs {
-		g := healthcheck.NewGuard(t, f)
+		g := healthcheck.NewGuard(&t, f)
 		g.Check()
 		holders = append(holders, g)
 	}

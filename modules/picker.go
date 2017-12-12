@@ -19,11 +19,17 @@ var Picker = map[string]picker{
 
 // rndPicker picks a random target from the list of targets.
 func rndPicker(rs []Route) *Route {
+	if len(rs) == 0 {
+		return nil
+	}
 	return &rs[randIntn(len(rs))]
 }
 
 // rrPicker picks the next target from a list of targets using round-robin.
 func rrPicker(rs []Route) *Route {
+	if len(rs) == 0 {
+		return nil
+	}
 	u := rs[total%uint64(len(rs))]
 	atomic.AddUint64(&total, 1)
 	if total > 9223372036854775807 {

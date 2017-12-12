@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"runtime"
 	"time"
 )
 
@@ -49,22 +48,16 @@ func ConfParser(file []byte) Configuration {
 
 	jsonConfig := Configuration{
 		GeneralConfig: GeneralConfig{
-			MaxProcs:       runtime.NumCPU(),
-			WorkerPoolSize: 10,
-			Websocket:      true,
-			LogLevel:       "info",
-			APIHost:        "127.0.0.1",
-			APIPort:        9292,
+			Websocket: true,
+			LogLevel:  "info",
+			APIHost:   "127.0.0.1",
+			APIPort:   9292,
 		},
 		FrontendConfigs: []FrontendConfig{
 			{
 				Timeout:        time.Millisecond * 30000,
-				HBMethod:       "HEAD",
-				ActiveAfter:    1,
-				InactiveAfter:  3,
 				HeartbeatTime:  time.Millisecond * 30000,
-				RetryTime:      time.Millisecond * 5000,
-				BackendsConfig: []BackendConfig{{Weight: 1}},
+				BackendsConfig: []BackendConfig{{Weight: 1, Hostname: ""}},
 			},
 		},
 	}

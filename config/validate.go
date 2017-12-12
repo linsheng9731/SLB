@@ -18,14 +18,6 @@ const ConfigSchema = `
       "id": "general",
       "type": "object",
       "properties": {
-        "maxProcs": {
-          "id": "maxProcs",
-          "type": "integer"
-        },
-        "workerPoolSize": {
-          "id": "workerPoolSize",
-          "type": "integer"
-        },
         "gracefulShutdown": {
           "id": "gracefulShutdown",
           "type": "boolean"
@@ -79,38 +71,18 @@ const ConfigSchema = `
 			"id": "strategy",
             "type": "string"
 			},
-          "route": {
-            "id": "route",
-            "type": "string"
-          },
           "timeout": {
             "id": "timeout",
             "type": "integer"
           },
-         "inactiveAfter": {
-		  "id": "inactiveAfter",
-			"type": "integer"
-          },
-          "activeAfter": {
-             "id": "activeAfter",
-             "type": "integer"
-           },
            "heartbeatTime": {
               "id": "heartbeatTime",
                "type": "integer"
            },
-           "retryTime": {
-               "id": "retryTime",
-               "type": "integer"
-            },
            "heartbeat": {
                 "id": "heartbeat",
                 "type": "string"
            },
-           "hbmethod": {
-               "id": "hbmethod",
-               "type": "string"
-            },
           "backends": {
             "id": "backends",
             "type": "array",
@@ -124,6 +96,10 @@ const ConfigSchema = `
                 },
                 "address": {
                   "id": "address",
+                  "type": "string"
+                },
+                "hostname": {
+                  "id": "hostname",
                   "type": "string"
                 },
                 "weigth": {
@@ -142,7 +118,6 @@ const ConfigSchema = `
           "name",
           "host",
           "port",
-          "route",
           "strategy"
         ]
       }
