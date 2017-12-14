@@ -5,11 +5,14 @@ import (
 	"time"
 )
 
+var GloabalConfig *Configuration
+
 type GeneralConfig struct {
-	Websocket bool   `json:"websocket"`
-	LogLevel  string `json:"logLevel"` // Need to define how it works
-	APIHost   string `json:"apihost"`
-	APIPort   int    `json:"apiport"`
+	LogLevel string `json:"logLevel"`
+	LogSize  int64  `json:"logSize"`
+	Silence  bool   `json:"silence"`
+	APIHost  string `json:"apihost"`
+	APIPort  int    `json:"apiport"`
 }
 
 type FrontendConfig struct {
@@ -20,7 +23,7 @@ type FrontendConfig struct {
 	Strategy       string        `json:"strategy"`
 	BackendsConfig `json:"backends"`
 	Heartbeat      string        `json:"heartbeat"`
-	HeartbeatTime  time.Duration `json:"heartbeatTime"` // Heartbeat time if health
+	HeartbeatTime  time.Duration `json:"heartbeatTime"`
 }
 
 func (f *FrontendConfig) Address() string {

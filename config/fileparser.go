@@ -3,7 +3,7 @@ package config
 import (
 	"encoding/json"
 	"io/ioutil"
-	"log"
+	lg "log"
 	"time"
 )
 
@@ -18,7 +18,7 @@ func openFile(filename string) []byte {
 		if err == nil {
 			return file
 		} else {
-			log.Fatal(err)
+			lg.Fatal(err)
 		}
 	}
 
@@ -34,24 +34,23 @@ func openFile(filename string) []byte {
 
 	file, err = ioutil.ReadFile("./" + DEFAULT_FILENAME)
 	if err != nil {
-		log.Fatal("No config file found, in /etc/sslb or ~/.sslb or in current dir")
+		lg.Fatal("No config file found, in /etc/sslb or ~/.sslb or in current dir")
 	}
 
 	return file
 }
 
 // ConfParser to Parse JSON FILE
-func ConfParser(file []byte) Configuration {
+func ConfParser(file []byte) *Configuration {
 	if err := Validate(file); err != nil {
-		log.Panic("Can't validate config.json ", err)
+		lg.Fatal("Can't validate config.json ", err)
 	}
 
 	jsonConfig := Configuration{
 		GeneralConfig: GeneralConfig{
-			Websocket: true,
-			LogLevel:  "info",
-			APIHost:   "127.0.0.1",
-			APIPort:   9292,
+			LogLevel: "info",
+			APIHost:  "127.0.0.1",
+			APIPort:  9292,
 		},
 		FrontendConfigs: []FrontendConfig{
 			{
@@ -65,14 +64,14 @@ func ConfParser(file []byte) Configuration {
 	err := json.Unmarshal(file, &jsonConfig)
 
 	if err != nil {
-		log.Panic("Error to parse json conf", err.Error())
+		lg.Fatal("Error to parse json conf", err.Error())
 	}
 
-	return jsonConfig
+	return &jsonConfig
 }
 
 // Setup will build everything and let the server run
-func Setup(filename string) Configuration {
+func Setup(filename string) *Configuration {
 	file := openFile(filename)
 	return ConfParser(file)
 }

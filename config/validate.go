@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/xeipuuv/gojsonschema"
-	"log"
+	lg "log"
 	"strings"
 )
 
@@ -18,24 +18,12 @@ const ConfigSchema = `
       "id": "general",
       "type": "object",
       "properties": {
-        "gracefulShutdown": {
-          "id": "gracefulShutdown",
-          "type": "boolean"
-        },
         "logLevel": {
           "id": "logLevel",
           "type": "string"
         },
-        "websocket": {
-          "id": "websocket",
-          "type": "boolean"
-        },
-        "host": {
-          "id": "rpchost",
-          "type": "string"
-        },
-        "port": {
-          "id": "rpcport",
+        "logSize": {
+          "id": "logSize",
           "type": "integer"
         },
         "apiHost": {
@@ -142,7 +130,7 @@ func Validate(file []byte) error {
 
 	result, err := schema.Validate(documentLoader)
 	if err != nil {
-		log.Println("Failed to validate", err.Error())
+		lg.Println("[Error] Failed to validate", err.Error())
 		return err
 	}
 

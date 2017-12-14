@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"github.com/containous/mux"
 	"github.com/linsheng9731/slb/common"
+	"github.com/linsheng9731/slb/logger"
 	"github.com/linsheng9731/slb/server"
 	"github.com/urfave/negroni"
-	"log"
 	"net/http"
 )
+
+var lg = logger.Server
 
 type API struct {
 	Serer *server.LbServer
@@ -21,7 +23,7 @@ func NewAPI(s *server.LbServer, msg chan int) *API {
 }
 
 func (api *API) reload(w http.ResponseWriter, r *http.Request) {
-	log.Println("API server get reload configuration request.")
+	lg.Info("API server get reload configuration request.")
 	go func() { api.msg <- common.RELOAD }()
 }
 
@@ -32,7 +34,7 @@ func (api *API) check(w http.ResponseWriter, r *http.Request) {
 func (api *API) configuration(w http.ResponseWriter, r *http.Request) {
 	b, err := json.MarshalIndent(api.Serer.Configuration, "", "  ")
 	if err != nil {
-		log.Println(err)
+		lg.Error(err)
 	}
 	fmt.Fprintln(w, string(b))
 }
@@ -41,7 +43,7 @@ func (api *API) statistic(w http.ResponseWriter, r *http.Request) {
 	stat := NewStat(api.Serer)
 	b, err := json.MarshalIndent(stat, "", "  ")
 	if err != nil {
-		log.Println(err)
+		lg.Error(err)
 	}
 
 	fmt.Fprintln(w, string(b))
@@ -55,11 +57,11 @@ func (api *API) Listen(address string) {
 	router.Methods("GET").Path("/config").HandlerFunc(api.configuration)
 	router.Methods("GET").Path("/status").HandlerFunc(api.statistic)
 	handlerInstance.UseHandler(router)
-	log.Println(fmt.Sprintf("Api server listen on %s", address))
+	lg.Info(fmt.Sprintf("Api server listen on %s", address))
 	go func() {
 		err := http.ListenAndServe(address, handlerInstance)
 		if err != nil {
-			log.Fatal(err)
+			lg.Fatal(err)
 		}
 	}()
 }

@@ -16,10 +16,9 @@ var (
 func init() {
 	cf = config.Configuration{
 		GeneralConfig: config.GeneralConfig{
-			Websocket: true,
-			LogLevel:  "info",
-			APIHost:   "127.0.0.1",
-			APIPort:   9292,
+			LogLevel: "info",
+			APIHost:  "127.0.0.1",
+			APIPort:  9292,
 		},
 		FrontendConfigs: []config.FrontendConfig{
 			{

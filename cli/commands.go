@@ -2,13 +2,12 @@ package cli
 
 import (
 	"fmt"
-	//"io/ioutil"
 	"github.com/codegangsta/cli"
 	"github.com/linsheng9731/slb/api"
 	"github.com/linsheng9731/slb/common"
 	"github.com/linsheng9731/slb/config"
+	"github.com/linsheng9731/slb/logger"
 	"github.com/linsheng9731/slb/server"
-	"io/ioutil"
 	"log"
 	"os"
 	"os/signal"
@@ -19,20 +18,17 @@ import (
 var serverHolder *server.LbServer
 var apiChannel chan int
 var apiInstance *api.API
+var lg *logger.Logger
 
 func handlePanic() {
 	if err := recover(); err != nil {
-		log.Println(err)
-		log.Fatal("LbServer start catch panic,exit.")
+		lg.Error(err)
+		lg.Fatal("LbServer start catch panic,exit.")
 	}
 }
 
 func RunServer(c *cli.Context) {
 	var s *server.LbServer
-
-	if c.Bool("silence") {
-		log.SetOutput(ioutil.Discard)
-	}
 
 	apiChannel = make(chan int)
 	defer handlePanic()
@@ -41,12 +37,14 @@ func RunServer(c *cli.Context) {
 	if c.String("filename") != "" {
 		filename = c.String("filename")
 	}
-	log.Println("Start SLB (LbServer) ")
-	configuration := config.Setup(filename)
 
-	s = server.NewServer(configuration)
+	config.GloabalConfig = config.Setup(filename)
+	lg = logger.NewLogger("./server.log", config.GloabalConfig)
+
+	lg.Info("Start SLB (LbServer) ")
+	s = server.NewServer(config.GloabalConfig)
 	serverHolder = s
-	log.Println("Prepare to run server ...")
+	lg.Info("Prepare to run server ...")
 	s.Run()
 
 	//apiInstance = api.NewAPI(serverHolder, apiChannel)
@@ -67,7 +65,7 @@ func RunServer(c *cli.Context) {
 	f.Close()
 
 	log.Println(<-ch)
-	log.Println("Prepare to stop server ...")
+	lg.Info("Prepare to stop server ...")
 	serverHolder.Stop()
 }
 
@@ -78,7 +76,7 @@ func listenSignal() {
 		for {
 			<-s
 			go func() { apiChannel <- common.RELOAD }()
-			log.Println("Receive hot reload signal.")
+			lg.Info("Receive hot reload signal.")
 		}
 	}()
 }
@@ -94,9 +92,9 @@ func HotReload(c *cli.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Read pid from slb.pid : %d ", pid)
+	lg.Info("Read pid from slb.pid : %d ", pid)
 	syscall.Kill(int(pid), syscall.SIGHUP) // reload
-	log.Println("Send reload signal to lb server.")
+	lg.Info("Send reload signal to lb server.")
 
 }
 
@@ -111,9 +109,9 @@ func StopCommand(c *cli.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	log.Printf("Read pid from slb.pid : %d ", pid)
+	lg.Info("Read pid from slb.pid : %d ", pid)
 	syscall.Kill(int(pid), syscall.SIGINT) // interrupt
-	log.Println("Send interrupt signal to lb server.")
+	lg.Info("Send interrupt signal to lb server.")
 }
 
 func messageHandler(apiChannel chan int, s *server.LbServer) {
@@ -122,16 +120,16 @@ func messageHandler(apiChannel chan int, s *server.LbServer) {
 		case msg := <-apiChannel:
 			switch msg {
 			case common.RELOAD:
-				log.Println("Received reload message.")
+				lg.Info("Received reload message.")
 				configuration := config.Setup(common.CONFIG_FILENAME)
 				s.Stop()
 				s = server.NewServer(configuration)
-				log.Println("Prepare to run server ...")
+				lg.Info("Prepare to run server ...")
 				s.Run()
 				serverHolder = s
 				apiInstance.Serer = s
 			default:
-				log.Println(fmt.Sprintf("Received a unrecognized message: %d", msg))
+				lg.Info(fmt.Sprintf("Received a unrecognized message: %d", msg))
 			}
 		}
 	}

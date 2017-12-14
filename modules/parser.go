@@ -1,7 +1,6 @@
 package modules
 
 import (
-	"log"
 	"strings"
 )
 
@@ -13,8 +12,8 @@ func schemaHost(prefix string) (schema string, host string) {
 	l := strings.Split(prefix, "://")
 
 	if len(l) > 2 {
-		log.Print(prefix)
-		log.Fatal(" the host path is invalid!")
+		lg.Info(prefix)
+		lg.Fatal(" the host path is invalid!")
 	} else if len(l) == 2 {
 		s = l[0]
 		l = l[1:]
@@ -28,8 +27,8 @@ func schemaHost(prefix string) (schema string, host string) {
 	} else if len(ll) == 1 {
 		h, p = ll[0], ""
 	} else {
-		log.Print(prefix)
-		log.Fatal(" the host path is invalid!")
+		lg.Info(prefix)
+		lg.Fatal(" the host path is invalid!")
 	}
 
 	if p == "" {

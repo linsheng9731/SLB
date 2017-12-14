@@ -2,11 +2,13 @@ package healthcheck
 
 import (
 	"github.com/linsheng9731/slb/config"
+	"github.com/linsheng9731/slb/logger"
 	"github.com/linsheng9731/slb/modules"
-	"github.com/lunny/log"
 	"net/http"
 	"time"
 )
+
+var lg = logger.Server
 
 type Guard struct {
 	table          *modules.Table
@@ -37,7 +39,7 @@ func (g Guard) Check() {
 			select {
 			case <-t.C:
 				if !g.active {
-					log.Info("receive a kill signal, try to go end !")
+					lg.Info("receive a kill signal, try to go end !")
 					goto END
 				}
 				activeRoutes := g.detect(flattenRoutes)
@@ -71,9 +73,9 @@ func (g Guard) detect(flattenRoutes []modules.Route) map[string][]modules.Route 
 		err, rep := doRequest(h)
 		if err != nil || rep.StatusCode >= 400 {
 			flattenRoutes[i].Active = false
-			log.Error(r.Src + " " + r.Dst + " is inactive !")
+			lg.Error(r.Src + " " + r.Dst + " is inactive !")
 		} else if !r.Active {
-			log.Info(r.Src + " " + r.Dst + " is active again !")
+			lg.Info(r.Src + " " + r.Dst + " is active again !")
 			flattenRoutes[i].Active = true
 			activeRoutes[r.Hostname] = append(activeRoutes[r.Hostname], r)
 		} else {

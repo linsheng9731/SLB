@@ -1,8 +1,8 @@
 package modules
 
 import (
+	"github.com/linsheng9731/slb/logger"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -10,18 +10,41 @@ import (
 	"time"
 )
 
+var lg = logger.Server
+var access = logger.Access
+
+// Status writer wrap http response writer
+// to record http status code
+type StatusRepWriter struct {
+	status int
+	w      http.ResponseWriter
+}
+
+func (w *StatusRepWriter) Flush() {
+	if wf, ok := w.w.(http.Flusher); ok {
+		wf.Flush()
+	}
+}
+func (w *StatusRepWriter) Header() http.Header         { return w.w.Header() }
+func (w *StatusRepWriter) Write(d []byte) (int, error) { return w.w.Write(d) }
+func (w *StatusRepWriter) WriteHeader(code int) {
+	w.status = code
+	w.w.WriteHeader(code)
+}
+
 type HttpProxy struct {
 	Transport http.RoundTripper
 	Lookup    func(r *http.Request) *Route
 }
 
 func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	timeStart := time.Now()
 	route := p.Lookup(r)
 	if route == nil {
 		w.WriteHeader(404)
 		return
 	}
-
+	statusW := &StatusRepWriter{-1, w}
 	schema, host := schemaHost(route.Dst)
 	targetURL := r.URL
 	targetURL.Host = host
@@ -33,7 +56,7 @@ func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case upgrade == "websocket" || upgrade == "Websocket":
 		r.URL = targetURL
 		if targetURL.Scheme == "https" || targetURL.Scheme == "wss" {
-			log.Println("https and wss are not implement yet!")
+			lg.Error("https and wss are not implement yet!")
 			httpProxy = newRawHTTPProxy(targetURL.Host, net.Dial)
 		} else {
 			httpProxy = newRawHTTPProxy(targetURL.Host, net.Dial)
@@ -43,8 +66,12 @@ func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	default:
 		httpProxy = newHTTPProxy(targetURL, p.Transport, time.Duration(0))
 	}
-	httpProxy.ServeHTTP(w, r)
-
+	httpProxy.ServeHTTP(statusW, r)
+	timeEnd := time.Now()
+	dur := timeEnd.Sub(timeStart)
+	reqUrl := r.URL
+	reqUrl.Host = r.Host
+	access.Info(r.Method, "From", reqUrl, "To", route.Dst, dur.Seconds()*1000, "ms", statusW.status)
 }
 
 func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) http.Handler {
@@ -96,7 +123,7 @@ func newRawHTTPProxy(host string, dial dialFunc) http.Handler {
 
 		in, _, err := hj.Hijack()
 		if err != nil {
-			log.Printf("[ERROR] Hijack error for %s. %s", r.URL, err)
+			lg.Error(" Hijack error for %s. %s", r.URL, err)
 			http.Error(w, "hijack error", http.StatusInternalServerError)
 			return
 		}
@@ -106,13 +133,13 @@ func newRawHTTPProxy(host string, dial dialFunc) http.Handler {
 		out, err := dial("tcp", host)
 
 		if err != nil {
-			log.Printf("[ERROR] WS error for %s. %s", r.URL, err)
+			lg.Error(" WS error for %s. %s", r.URL, err)
 			http.Error(w, "error contacting backend server", http.StatusInternalServerError)
 			return
 		}
 		err = r.Write(out)
 		if err != nil {
-			log.Printf("[ERROR] WS error for %s. %s", r.URL, err)
+			lg.Error(" WS error for %s. %s", r.URL, err)
 			http.Error(w, "error contacting backend server", http.StatusInternalServerError)
 			return
 		}
@@ -126,7 +153,7 @@ func newRawHTTPProxy(host string, dial dialFunc) http.Handler {
 		go cp(in, out)
 		err = <-errCh
 		if err != nil && err != io.EOF {
-			log.Printf("[INFO] WS error for %s. %s", r.URL, err)
+			lg.Info(" WS error for %s. %s", r.URL, err)
 		}
 	})
 }

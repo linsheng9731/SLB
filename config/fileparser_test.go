@@ -38,10 +38,6 @@ func TestFileparserGeneral(t *testing.T) {
 		t.Fatal("LogLevel is wrong", conf.GeneralConfig.LogLevel)
 	}
 
-	if !conf.GeneralConfig.Websocket {
-		t.Fatal("Websocket is wrong", conf.GeneralConfig.Websocket)
-	}
-
 }
 
 func TestFileparserFrontend(t *testing.T) {

@@ -4,26 +4,28 @@ import (
 	"crypto/tls"
 	"github.com/linsheng9731/slb/config"
 	"github.com/linsheng9731/slb/healthcheck"
+	"github.com/linsheng9731/slb/logger"
 	"github.com/linsheng9731/slb/modules"
-	"log"
 	"net"
 	"net/http"
 	"sync"
 	"time"
 )
 
+var lg = logger.Server
+
 type ShutdownChan chan bool
 
 var holders []*healthcheck.Guard
 
 type LbServer struct {
-	config.Configuration
+	*config.Configuration
 	ShutdownChan
 	sync.Mutex
 	*sync.WaitGroup
 }
 
-func NewServer(configuration config.Configuration) *LbServer {
+func NewServer(configuration *config.Configuration) *LbServer {
 	return &LbServer{
 		Configuration: configuration,
 		ShutdownChan:  make(ShutdownChan),
@@ -39,7 +41,7 @@ func (s *LbServer) Run() {
 
 	for _, f := range s.FrontendConfigs {
 		var f = f // catch variable
-		log.Println("start to listen frontend " + f.Address())
+		lg.Info("start to listen frontend " + f.Address())
 		go func() {
 			h := newHTTPProxy(&f)
 			l := modules.Listen{
@@ -50,7 +52,7 @@ func (s *LbServer) Run() {
 			}
 			// listen port
 			if err := modules.ListenAndServeHTTP(l, h); err != nil {
-				log.Fatal("[FATAL]", err)
+				lg.Fatal(err)
 			}
 		}()
 	}
@@ -74,8 +76,8 @@ func newHTTPProxy(f *config.FrontendConfig) http.Handler {
 
 	pick := modules.Picker[f.Strategy] // random target strategy and next target strategy
 	if pick == nil {
-		log.Print(f.Strategy)
-		log.Fatal("strategy is illegal !")
+		lg.Error(f.Strategy)
+		lg.Fatal("strategy is illegal !")
 	}
 	newTransport := func(tlscfg *tls.Config) *http.Transport {
 		return &http.Transport{
@@ -95,7 +97,7 @@ func newHTTPProxy(f *config.FrontendConfig) http.Handler {
 			t := modules.GetTable().Lookup(r, f.Port, pick)
 			if t == nil {
 				//notFound.Inc(1)
-				log.Print("[WARN] No route for ", r.Host, r.URL)
+				lg.Warn("No route for ", r.Host, r.URL)
 			}
 			return t
 		},
