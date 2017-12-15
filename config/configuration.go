@@ -2,14 +2,15 @@ package config
 
 import (
 	"fmt"
+	"github.com/linsheng9731/slb/common"
 	"time"
 )
 
-var GloabalConfig *Configuration
+var GlobalConfig = Setup(common.CONFIG_FILENAME)
 
 type GeneralConfig struct {
 	LogLevel string `json:"logLevel"`
-	LogSize  int64  `json:"logSize"`
+	LogSize  int    `json:"logSize"`
 	Silence  bool   `json:"silence"`
 	APIHost  string `json:"apihost"`
 	APIPort  int    `json:"apiport"`
@@ -48,7 +49,7 @@ type Configuration struct {
 	FrontendConfigs `json:"frontends"`
 }
 
-func (c GeneralConfig) APIAddres() string {
+func (c GeneralConfig) Addres() string {
 	address := fmt.Sprintf("%s:%d",
 		c.APIHost,
 		c.APIPort,

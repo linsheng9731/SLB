@@ -10,6 +10,10 @@ build: gofmt
 	$(GO) build -i
 	$(GO) test -i ./...
 
+linux: gofmt
+	GOOS=linux GOARCH=amd64 go build
+	$(GO) test -i ./...
+
 test: gofmt
 	$(GO) test -v -test.timeout 15s `go list ./... | grep -v '/vendor/'`
 

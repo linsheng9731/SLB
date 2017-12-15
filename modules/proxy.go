@@ -15,19 +15,24 @@ var access = logger.Access
 
 // Status writer wrap http response writer
 // to record http status code
-type StatusRepWriter struct {
+type WrapRepWriter struct {
 	status int
+	size   int
 	w      http.ResponseWriter
 }
 
-func (w *StatusRepWriter) Flush() {
+func (w *WrapRepWriter) Flush() {
 	if wf, ok := w.w.(http.Flusher); ok {
 		wf.Flush()
 	}
 }
-func (w *StatusRepWriter) Header() http.Header         { return w.w.Header() }
-func (w *StatusRepWriter) Write(d []byte) (int, error) { return w.w.Write(d) }
-func (w *StatusRepWriter) WriteHeader(code int) {
+func (w *WrapRepWriter) Header() http.Header { return w.w.Header() }
+func (w *WrapRepWriter) Write(d []byte) (int, error) {
+	n, err := w.w.Write(d)
+	w.size = n
+	return n, err
+}
+func (w *WrapRepWriter) WriteHeader(code int) {
 	w.status = code
 	w.w.WriteHeader(code)
 }
@@ -35,6 +40,7 @@ func (w *StatusRepWriter) WriteHeader(code int) {
 type HttpProxy struct {
 	Transport http.RoundTripper
 	Lookup    func(r *http.Request) *Route
+	Metrics   *Metrics
 }
 
 func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -44,7 +50,8 @@ func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(404)
 		return
 	}
-	statusW := &StatusRepWriter{-1, w}
+	p.Metrics.AddInTraffic(r.ContentLength)
+	writer := &WrapRepWriter{-1, 0, w}
 	schema, host := schemaHost(route.Dst)
 	targetURL := r.URL
 	targetURL.Host = host
@@ -66,12 +73,16 @@ func (p *HttpProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	default:
 		httpProxy = newHTTPProxy(targetURL, p.Transport, time.Duration(0))
 	}
-	httpProxy.ServeHTTP(statusW, r)
+
+	httpProxy.ServeHTTP(writer, r)
 	timeEnd := time.Now()
 	dur := timeEnd.Sub(timeStart)
 	reqUrl := r.URL
 	reqUrl.Host = r.Host
-	access.Info(r.Method, "From", reqUrl, "To", route.Dst, dur.Seconds()*1000, "ms", statusW.status)
+	p.Metrics.Status(writer.status)
+	p.Metrics.Dur(dur.Seconds())
+	p.Metrics.AddOutTraffic(writer.size)
+	access.Info(r.Method, "From", reqUrl, "To", route.Dst, dur.Seconds()*1000, "ms", writer.status)
 }
 
 func newHTTPProxy(target *url.URL, tr http.RoundTripper, flush time.Duration) http.Handler {

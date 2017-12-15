@@ -8,8 +8,8 @@ import (
 	"os"
 )
 
-var Access = NewLogger("./access.log", config.GloabalConfig)
-var Server = NewLogger("./server.log", config.GloabalConfig)
+var Access = NewLogger("./access.log", config.GlobalConfig)
+var Server = NewLogger("./server.log", config.GlobalConfig)
 
 type Logger struct {
 	logger *log.Logger
@@ -33,7 +33,7 @@ func NewLogger(filename string, cfg *config.Configuration) *Logger {
 	l := log.New(file, "[info]", log.Lshortfile)
 	l.SetOutput(&lumberjack.Logger{
 		Filename:   filename,
-		MaxSize:    1, // megabytes
+		MaxSize:    cfg.LogSize, // megabytes
 		MaxBackups: 3,
 		MaxAge:     28,   //days
 		Compress:   true, // disabled by default
@@ -43,14 +43,14 @@ func NewLogger(filename string, cfg *config.Configuration) *Logger {
 }
 
 func (l *Logger) Debug(msg ...interface{}) {
-	if config.GloabalConfig.LogLevel == "debug" {
+	if config.GlobalConfig.LogLevel == "debug" {
 		l.logger.SetPrefix("[debug]")
 		l.logger.Println(msg)
 	}
 }
 
 func (l *Logger) Info(msg ...interface{}) {
-	Level := config.GloabalConfig.LogLevel
+	Level := config.GlobalConfig.LogLevel
 	if Level == "debug" || Level == "info" {
 		l.logger.SetPrefix("[info]")
 		l.logger.Println(msg)
@@ -58,7 +58,7 @@ func (l *Logger) Info(msg ...interface{}) {
 }
 
 func (l *Logger) Warn(msg ...interface{}) {
-	Level := config.GloabalConfig.LogLevel
+	Level := config.GlobalConfig.LogLevel
 	if Level == "debug" || Level == "info" || Level == "warn" {
 		l.logger.SetPrefix("[warn]")
 		l.logger.Println(msg)
@@ -66,7 +66,7 @@ func (l *Logger) Warn(msg ...interface{}) {
 }
 
 func (l *Logger) Error(msg ...interface{}) {
-	Level := config.GloabalConfig.LogLevel
+	Level := config.GlobalConfig.LogLevel
 	if Level != "fatal" {
 		l.logger.SetPrefix("[error]")
 		l.logger.Println(msg)
@@ -74,7 +74,7 @@ func (l *Logger) Error(msg ...interface{}) {
 }
 
 func (l *Logger) Fatal(msg ...interface{}) {
-	Level := config.GloabalConfig.LogLevel
+	Level := config.GlobalConfig.LogLevel
 	if Level == "fatal" {
 		l.logger.SetPrefix("[fatal]")
 		l.logger.Fatalln(msg)

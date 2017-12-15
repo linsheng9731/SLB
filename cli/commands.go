@@ -7,6 +7,7 @@ import (
 	"github.com/linsheng9731/slb/common"
 	"github.com/linsheng9731/slb/config"
 	"github.com/linsheng9731/slb/logger"
+	"github.com/linsheng9731/slb/modules"
 	"github.com/linsheng9731/slb/server"
 	"log"
 	"os"
@@ -33,22 +34,18 @@ func RunServer(c *cli.Context) {
 	apiChannel = make(chan int)
 	defer handlePanic()
 
-	filename := common.CONFIG_FILENAME
-	if c.String("filename") != "" {
-		filename = c.String("filename")
-	}
-
-	config.GloabalConfig = config.Setup(filename)
-	lg = logger.NewLogger("./server.log", config.GloabalConfig)
+	lg = logger.NewLogger("./server.log", config.GlobalConfig)
 
 	lg.Info("Start SLB (LbServer) ")
-	s = server.NewServer(config.GloabalConfig)
+	m := modules.NewMetrics()
+	m.IntervalTask()
+	s = server.NewServer(config.GlobalConfig, m)
 	serverHolder = s
 	lg.Info("Prepare to run server ...")
 	s.Run()
 
-	//apiInstance = api.NewAPI(serverHolder, apiChannel)
-	//apiInstance.Listen(configuration.GeneralConfig.APIAddres())
+	apiInstance = api.NewAPI(serverHolder, apiChannel)
+	apiInstance.Listen(config.GlobalConfig.Addres())
 	//go messageHandler(apiChannel, s)
 	listenSignal()
 	ch := make(chan os.Signal)
@@ -115,22 +112,22 @@ func StopCommand(c *cli.Context) {
 }
 
 func messageHandler(apiChannel chan int, s *server.LbServer) {
-	for {
-		select {
-		case msg := <-apiChannel:
-			switch msg {
-			case common.RELOAD:
-				lg.Info("Received reload message.")
-				configuration := config.Setup(common.CONFIG_FILENAME)
-				s.Stop()
-				s = server.NewServer(configuration)
-				lg.Info("Prepare to run server ...")
-				s.Run()
-				serverHolder = s
-				apiInstance.Serer = s
-			default:
-				lg.Info(fmt.Sprintf("Received a unrecognized message: %d", msg))
-			}
-		}
-	}
+	//for {
+	//	select {
+	//	case msg := <-apiChannel:
+	//		switch msg {
+	//		case common.RELOAD:
+	//			lg.Info("Received reload message.")
+	//			configuration := config.Setup(common.CONFIG_FILENAME)
+	//			s.Stop()
+	//			s = server.NewServer(configuration)
+	//			lg.Info("Prepare to run server ...")
+	//			s.Run()
+	//			serverHolder = s
+	//			apiInstance.Serer = s
+	//		default:
+	//			lg.Info(fmt.Sprintf("Received a unrecognized message: %d", msg))
+	//		}
+	//	}
+	//}
 }

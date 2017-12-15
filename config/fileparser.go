@@ -2,6 +2,7 @@ package config
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	lg "log"
 	"time"
@@ -70,8 +71,13 @@ func ConfParser(file []byte) *Configuration {
 	return &jsonConfig
 }
 
-// Setup will build everything and let the server run
+// Setup parse config file and return configuration
 func Setup(filename string) *Configuration {
-	file := openFile(filename)
-	return ConfParser(file)
+	if v := flag.Lookup("test.v"); v == nil {
+		file := openFile(filename)
+		return ConfParser(file)
+	} else {
+		file := openFile("../config.json")
+		return ConfParser(file)
+	}
 }

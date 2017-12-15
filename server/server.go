@@ -16,18 +16,20 @@ var lg = logger.Server
 
 type ShutdownChan chan bool
 
-var holders []*healthcheck.Guard
+var gaurds []*healthcheck.Guard
 
 type LbServer struct {
 	*config.Configuration
+	*modules.Metrics
 	ShutdownChan
 	sync.Mutex
 	*sync.WaitGroup
 }
 
-func NewServer(configuration *config.Configuration) *LbServer {
+func NewServer(configuration *config.Configuration, metric *modules.Metrics) *LbServer {
 	return &LbServer{
 		Configuration: configuration,
+		Metrics:       metric,
 		ShutdownChan:  make(ShutdownChan),
 		WaitGroup:     &sync.WaitGroup{},
 	}
@@ -43,7 +45,7 @@ func (s *LbServer) Run() {
 		var f = f // catch variable
 		lg.Info("start to listen frontend " + f.Address())
 		go func() {
-			h := newHTTPProxy(&f)
+			h := newHTTPProxy(&f, s.Metrics)
 			l := modules.Listen{
 				Addr:         f.Address(),
 				Proto:        "http",
@@ -61,18 +63,18 @@ func (s *LbServer) Run() {
 	for _, f := range s.FrontendConfigs {
 		g := healthcheck.NewGuard(&t, f)
 		g.Check()
-		holders = append(holders, g)
+		gaurds = append(gaurds, g)
 	}
 }
 
 func (s *LbServer) Stop() {
 	// stop guards
-	for _, h := range holders {
-		h.Stop()
+	for _, g := range gaurds {
+		g.Stop()
 	}
 }
 
-func newHTTPProxy(f *config.FrontendConfig) http.Handler {
+func newHTTPProxy(f *config.FrontendConfig, m *modules.Metrics) http.Handler {
 
 	pick := modules.Picker[f.Strategy] // random target strategy and next target strategy
 	if pick == nil {
@@ -101,5 +103,6 @@ func newHTTPProxy(f *config.FrontendConfig) http.Handler {
 			}
 			return t
 		},
+		Metrics: m,
 	}
 }
